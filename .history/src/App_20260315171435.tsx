@@ -8,17 +8,17 @@ function App() {
   return (
     <Router>
       {/* Navbar shows on all pages */}
-      {/* <Navbar />  */}
+      <Navbar /> 
       
       {/* Main content area */}
       <div className="min-h-screen bg-gray-50">
         <Routes>
           {/* Public Routes */}
           <Route path="/" element={<Home />} />
-          {/* <Route path="/apply" element={<Apply />} /> */}
+          <Route path="/apply" element={<Apply />} />
           
           {/* Secret Admin Route - We will add password protection later */}
-          {/* <Route path="/admin-portal-xyz" element={<AdminDashboard />} /> */}
+          <Route path="/admin-portal-xyz" element={<AdminDashboard />} />
         </Routes>
       </div>
     </Router>

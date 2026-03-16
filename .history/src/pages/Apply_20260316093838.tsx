@@ -160,16 +160,16 @@ const Apply = () => {
                         <div className="relative">
                         <BookOpen className="w-5 h-5 absolute left-3 top-2.5 text-gray-400" aria-hidden="true" />
                         <select 
-                            id="program"
-                            name="program" 
-                            value={formData.program} 
-                            onChange={handleInputChange} 
-                            className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all appearance-none"
-                        >
-                            {settings.programs.ug && <option value="Undergraduate Studies">Undergraduate Studies</option>}
-                            {settings.programs.pg && <option value="Postgraduate Studies">Postgraduate Studies</option>}
-                            {settings.programs.jupeb && <option value="JUPEB / Pre-Degree">JUPEB / Pre-Degree</option>}
-                        </select>
+        id="program"
+        name="program" 
+        value={formData.program} 
+        onChange={handleInputChange} 
+        className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all appearance-none"
+      >
+        {settings.programs.ug && <option value="Undergraduate Studies">Undergraduate Studies</option>}
+        {settings.programs.pg && <option value="Postgraduate Studies">Postgraduate Studies</option>}
+        {settings.programs.jupeb && <option value="JUPEB / Pre-Degree">JUPEB / Pre-Degree</option>}
+      </select>
                         </div>
                     </div>
 

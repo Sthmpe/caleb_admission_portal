@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { 
   FileText, ShieldCheck, HelpCircle, 
-  Phone, Mail, MapPin, Facebook, Youtube, 
+  Phone, Mail, MapPin, Facebook, Youtube, MessageCircle 
 } from 'lucide-react';
 
 const WhatsAppIcon = ({ className }: { className?: string }) => (
@@ -44,9 +44,8 @@ const AnimatedCounter = ({ target, suffix = "" }: { target: number, suffix?: str
 };
 
 const Home = () => {
-  const [settings] = useState(() => {
-    const saved = localStorage.getItem('portal_settings');
-    return saved ? JSON.parse(saved) : { status: 'coming_soon', comingSoonDate: '' };
+  const [admissionStatus] = useState<string>(() => {
+    return localStorage.getItem('portal_status') || 'coming_soon';
   });
 
   return (
@@ -126,7 +125,7 @@ const Home = () => {
                 Application Status
               </h2>
               
-              {settings.status === 'open' && (
+              {admissionStatus === 'open' && (
                 <div className="text-center">
                   <div className="flex justify-center mb-4">
                     <span className="flex items-center gap-2 bg-green-100 text-green-800 px-4 py-2 rounded-full font-bold text-sm">
@@ -135,7 +134,7 @@ const Home = () => {
                     </span>
                   </div>
                   <p className="text-sm text-gray-600 mb-6">
-                    Application forms are currently available for purchase.
+                    Undergraduate and Postgraduate forms are available for purchase.
                   </p>
                   <Link 
                     to="/apply" 
@@ -150,7 +149,7 @@ const Home = () => {
                 </div>
               )}
 
-              {settings.status === 'closed' && (
+              {admissionStatus === 'closed' && (
                 <div className="text-center">
                   <p className="text-red-600 font-bold mb-2 text-lg">
                     Admissions are CLOSED.
@@ -161,16 +160,13 @@ const Home = () => {
                 </div>
               )}
 
-              {settings.status === 'coming_soon' && (
+              {admissionStatus === 'coming_soon' && (
                 <div className="text-center">
                   <p className="text-yellow-600 font-bold mb-2 text-lg">
-                    ⏳ Admissions Opening Soon
+                    Admissions Opening Soon
                   </p>
                   <p className="text-sm text-gray-500">
-                    We are finalizing preparations.
-                    {settings.comingSoonDate 
-                      ? ` The portal will officially open on ${new Date(settings.comingSoonDate).toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}.` 
-                      : ' The portal will open shortly.'}
+                    We are finalizing preparations. The portal will open shortly.
                   </p>
                 </div>
               )}

@@ -2,17 +2,6 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Settings, CheckCircle, XCircle, Clock, ArrowLeft, Calendar, BookOpen } from 'lucide-react';
 
-// Define the exact shape of our settings object
-interface PortalSettings {
-  status: string;
-  comingSoonDate: string;
-  programs: {
-    ug: boolean;
-    pg: boolean;
-    jupeb: boolean;
-  };
-}
-
 // Default settings blueprint
 const defaultSettings = {
   status: 'coming_soon',
@@ -28,10 +17,16 @@ const AdminDashboard = () => {
   });
 
   // Master update function
-  const updateSettings = (newSettings: PortalSettings) => {
-    setSettings(newSettings);
-    localStorage.setItem('portal_settings', JSON.stringify(newSettings));
+  // Define the exact shape of our settings object
+interface PortalSettings {
+  status: string;
+  comingSoonDate: string;
+  programs: {
+    ug: boolean;
+    pg: boolean;
+    jupeb: boolean;
   };
+}
 
   const handleStatusChange = (status: string) => {
 	updateSettings({ ...settings, status });

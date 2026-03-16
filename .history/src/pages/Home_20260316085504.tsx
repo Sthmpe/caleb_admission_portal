@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { 
   FileText, ShieldCheck, HelpCircle, 
-  Phone, Mail, MapPin, Facebook, Youtube, 
+  Phone, Mail, MapPin, Facebook, Youtube, MessageCircle 
 } from 'lucide-react';
 
 const WhatsAppIcon = ({ className }: { className?: string }) => (
@@ -44,9 +44,8 @@ const AnimatedCounter = ({ target, suffix = "" }: { target: number, suffix?: str
 };
 
 const Home = () => {
-  const [settings] = useState(() => {
-    const saved = localStorage.getItem('portal_settings');
-    return saved ? JSON.parse(saved) : { status: 'coming_soon', comingSoonDate: '' };
+  const [admissionStatus] = useState<string>(() => {
+    return localStorage.getItem('portal_status') || 'coming_soon';
   });
 
   return (
@@ -70,7 +69,7 @@ const Home = () => {
           <div className="absolute right-0 top-full mt-1 w-64 bg-white border border-gray-100 shadow-xl rounded-lg p-5 hidden group-hover:block z-50">
             <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Contact Support</p>
             <a href="#" className="flex items-center gap-3 text-sm text-gray-700 hover:text-green-600 transition mb-3">
-              <WhatsAppIcon className="w-4 h-4 text-green-500" /> WhatsApp Support
+              <MessageCircle className="w-4 h-4 text-green-500" /> WhatsApp Support
             </a>
             <a href="tel:0201-2910684" className="flex items-center gap-3 text-sm text-gray-700 hover:text-blue-600 transition mb-3">
               <Phone className="w-4 h-4 text-blue-500" /> 0201-2910684
@@ -126,7 +125,7 @@ const Home = () => {
                 Application Status
               </h2>
               
-              {settings.status === 'open' && (
+              {admissionStatus === 'open' && (
                 <div className="text-center">
                   <div className="flex justify-center mb-4">
                     <span className="flex items-center gap-2 bg-green-100 text-green-800 px-4 py-2 rounded-full font-bold text-sm">
@@ -135,7 +134,7 @@ const Home = () => {
                     </span>
                   </div>
                   <p className="text-sm text-gray-600 mb-6">
-                    Application forms are currently available for purchase.
+                    Undergraduate and Postgraduate forms are available for purchase.
                   </p>
                   <Link 
                     to="/apply" 
@@ -150,7 +149,7 @@ const Home = () => {
                 </div>
               )}
 
-              {settings.status === 'closed' && (
+              {admissionStatus === 'closed' && (
                 <div className="text-center">
                   <p className="text-red-600 font-bold mb-2 text-lg">
                     Admissions are CLOSED.
@@ -161,16 +160,13 @@ const Home = () => {
                 </div>
               )}
 
-              {settings.status === 'coming_soon' && (
+              {admissionStatus === 'coming_soon' && (
                 <div className="text-center">
                   <p className="text-yellow-600 font-bold mb-2 text-lg">
-                    ⏳ Admissions Opening Soon
+                    Admissions Opening Soon
                   </p>
                   <p className="text-sm text-gray-500">
-                    We are finalizing preparations.
-                    {settings.comingSoonDate 
-                      ? ` The portal will officially open on ${new Date(settings.comingSoonDate).toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}.` 
-                      : ' The portal will open shortly.'}
+                    We are finalizing preparations. The portal will open shortly.
                   </p>
                 </div>
               )}
@@ -246,7 +242,7 @@ const Home = () => {
                 aria-label="Contact us on WhatsApp" 
                 className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center hover:bg-green-500 hover:text-white transition-colors"
               >
-                <WhatsAppIcon className="w-5 h-5" />
+                <MessageCircle className="w-5 h-5" />
               </a>
             </div>
           </div>

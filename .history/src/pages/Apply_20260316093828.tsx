@@ -166,9 +166,9 @@ const Apply = () => {
                             onChange={handleInputChange} 
                             className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all appearance-none"
                         >
-                            {settings.programs.ug && <option value="Undergraduate Studies">Undergraduate Studies</option>}
-                            {settings.programs.pg && <option value="Postgraduate Studies">Postgraduate Studies</option>}
-                            {settings.programs.jupeb && <option value="JUPEB / Pre-Degree">JUPEB / Pre-Degree</option>}
+                            <option value="Undergraduate (B.Sc)">Undergraduate (B.Sc)</option>
+                            <option value="Postgraduate (M.Sc / Ph.D)">Postgraduate (M.Sc / Ph.D)</option>
+                            <option value="JUPEB / Foundation">JUPEB / Foundation</option>
                         </select>
                         </div>
                     </div>

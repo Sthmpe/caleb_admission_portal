@@ -2,17 +2,6 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Settings, CheckCircle, XCircle, Clock, ArrowLeft, Calendar, BookOpen } from 'lucide-react';
 
-// Define the exact shape of our settings object
-interface PortalSettings {
-  status: string;
-  comingSoonDate: string;
-  programs: {
-    ug: boolean;
-    pg: boolean;
-    jupeb: boolean;
-  };
-}
-
 // Default settings blueprint
 const defaultSettings = {
   status: 'coming_soon',
@@ -28,9 +17,9 @@ const AdminDashboard = () => {
   });
 
   // Master update function
-  const updateSettings = (newSettings: PortalSettings) => {
-    setSettings(newSettings);
-    localStorage.setItem('portal_settings', JSON.stringify(newSettings));
+  const updateSettings = (newSettings: any) => {
+	setSettings(newSettings);
+	localStorage.setItem('portal_settings', JSON.stringify(newSettings));
   };
 
   const handleStatusChange = (status: string) => {
@@ -120,21 +109,20 @@ const AdminDashboard = () => {
 				</div>
 			  </div>
 
-				{/* Date Picker (Only show if Coming Soon) */}
-				{settings.status === 'coming_soon' && (
+			  {/* Date Picker (Only show if Coming Soon) */}
+			  {settings.status === 'coming_soon' && (
 				<div className="mt-4 pt-4 border-t border-yellow-200">
-					<label htmlFor="openingDate" className="text-sm font-bold text-yellow-800 mb-2 flex items-center gap-2">
-					<Calendar className="w-4 h-4" aria-hidden="true" /> Set Official Opening Date:
-					</label>
-					<input 
-					id="openingDate"
+				  <label className="text-sm font-bold text-yellow-800 mb-2 flex items-center gap-2">
+					<Calendar className="w-4 h-4" /> Set Official Opening Date:
+				  </label>
+				  <input 
 					type="date" 
 					value={settings.comingSoonDate} 
 					onChange={(e) => updateSettings({ ...settings, comingSoonDate: e.target.value })}
 					className="w-full p-2.5 rounded-lg border border-yellow-300 focus:ring-2 focus:ring-yellow-500 outline-none bg-white"
-					/>
+				  />
 				</div>
-				)}
+			  )}
 			</div>
 
 			{/* CLOSED BUTTON */}

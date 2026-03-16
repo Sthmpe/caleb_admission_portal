@@ -1,0 +1,142 @@
+import { useState } from 'react';
+import { Link } from 'react-router-dom';
+import { Settings, CheckCircle, XCircle, Clock, ArrowLeft, Calendar, BookOpen } from 'lucide-react';
+
+// Default settings blueprint
+const defaultSettings = {
+  status: 'coming_soon',
+  comingSoonDate: '',
+  programs: { ug: true, pg: true, jupeb: true }
+};
+
+const AdminDashboard = () => {
+  // Load complex settings object from local storage
+  const [settings, setSettings] = useState(() => {
+    const saved = localStorage.getItem('portal_settings');
+    return saved ? JSON.parse(saved) : defaultSettings;
+  });
+
+  // Master update function
+  const updateSettings = (newSettings: any) => {
+    setSettings(newSettings);
+    localStorage.setItem('portal_settings', JSON.stringify(newSettings));
+  };
+
+  const handleStatusChange = (status: string) => {
+    updateSettings({ ...settings, status });
+  };
+
+  const handleProgramToggle = (programKey: 'ug' | 'pg' | 'jupeb') => {
+    updateSettings({
+      ...settings,
+      programs: { ...settings.programs, [programKey]: !settings.programs[programKey] }
+    });
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-100 p-6 md:p-12 font-sans">
+      <div className="max-w-3xl mx-auto bg-white rounded-xl shadow-lg overflow-hidden">
+        
+        <div className="bg-slate-900 text-white p-6 flex justify-between items-center">
+          <div className="flex items-center gap-3">
+            <Settings className="w-6 h-6" />
+            <h1 className="text-xl md:text-2xl font-bold">Portal Administration</h1>
+          </div>
+          <Link to="/" className="text-sm text-slate-300 hover:text-white flex items-center gap-1 transition-colors">
+            <ArrowLeft className="w-4 h-4" /> View Live Site
+          </Link>
+        </div>
+
+        <div className="p-6 md:p-8">
+          <h2 className="text-lg font-semibold text-gray-800 mb-6 border-b pb-2">
+            Manage Admission Status
+          </h2>
+
+          <div className="space-y-4">
+            {/* OPEN BUTTON */}
+            <div className={`p-4 rounded-lg border-2 transition-all ${settings.status === 'open' ? 'border-green-500 bg-green-50' : 'border-gray-200 hover:border-green-300'}`}>
+              <div 
+                className="flex items-center justify-between cursor-pointer"
+                onClick={() => handleStatusChange('open')}
+              >
+                <div className="flex items-center gap-4">
+                  <CheckCircle className={`w-8 h-8 ${settings.status === 'open' ? 'text-green-600' : 'text-gray-400'}`} />
+                  <div>
+                    <h3 className="font-bold text-gray-900">Open Admissions</h3>
+                    <p className="text-sm text-gray-500">Allows users to purchase the form.</p>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Program Toggles (Only show if Open) */}
+              <div className="grid sm:grid-cols-3 gap-3">
+  <label htmlFor="ug-toggle" className="flex items-center gap-2 bg-white p-2 rounded border border-green-200 cursor-pointer hover:bg-green-100 transition">
+    <input id="ug-toggle" type="checkbox" checked={settings.programs.ug} onChange={() => handleProgramToggle('ug')} className="w-4 h-4 text-green-600" />
+    <span className="text-sm font-semibold">Undergraduate</span>
+  </label>
+  
+  <label htmlFor="pg-toggle" className="flex items-center gap-2 bg-white p-2 rounded border border-green-200 cursor-pointer hover:bg-green-100 transition">
+    <input id="pg-toggle" type="checkbox" checked={settings.programs.pg} onChange={() => handleProgramToggle('pg')} className="w-4 h-4 text-green-600" />
+    <span className="text-sm font-semibold">Postgraduate</span>
+  </label>
+  
+  <label htmlFor="jupeb-toggle" className="flex items-center gap-2 bg-white p-2 rounded border border-green-200 cursor-pointer hover:bg-green-100 transition">
+    <input id="jupeb-toggle" type="checkbox" checked={settings.programs.jupeb} onChange={() => handleProgramToggle('jupeb')} className="w-4 h-4 text-green-600" />
+    <span className="text-sm font-semibold">JUPEB</span>
+  </label>
+</div>
+            </div>
+
+            {/* COMING SOON BUTTON */}
+            <div className={`p-4 rounded-lg border-2 transition-all ${settings.status === 'coming_soon' ? 'border-yellow-500 bg-yellow-50' : 'border-gray-200 hover:border-yellow-300'}`}>
+              <div 
+                className="flex items-center justify-between cursor-pointer"
+                onClick={() => handleStatusChange('coming_soon')}
+              >
+                <div className="flex items-center gap-4">
+                  <Clock className={`w-8 h-8 ${settings.status === 'coming_soon' ? 'text-yellow-600' : 'text-gray-400'}`} />
+                  <div>
+                    <h3 className="font-bold text-gray-900">Coming Soon</h3>
+                    <p className="text-sm text-gray-500">Displays a waiting message and opening date.</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Date Picker (Only show if Coming Soon) */}
+              {settings.status === 'coming_soon' && (
+                <div className="mt-4 pt-4 border-t border-yellow-200">
+                  <label className="text-sm font-bold text-yellow-800 mb-2 flex items-center gap-2">
+                    <Calendar className="w-4 h-4" /> Set Official Opening Date:
+                  </label>
+                  <input 
+                    type="date" 
+                    value={settings.comingSoonDate} 
+                    onChange={(e) => updateSettings({ ...settings, comingSoonDate: e.target.value })}
+                    className="w-full p-2.5 rounded-lg border border-yellow-300 focus:ring-2 focus:ring-yellow-500 outline-none bg-white"
+                  />
+                </div>
+              )}
+            </div>
+
+            {/* CLOSED BUTTON */}
+            <div 
+              className={`p-4 rounded-lg border-2 flex items-center justify-between cursor-pointer transition-all ${settings.status === 'closed' ? 'border-red-500 bg-red-50' : 'border-gray-200 hover:border-red-300'}`}
+              onClick={() => handleStatusChange('closed')}
+            >
+              <div className="flex items-center gap-4">
+                <XCircle className={`w-8 h-8 ${settings.status === 'closed' ? 'text-red-600' : 'text-gray-400'}`} />
+                <div>
+                  <h3 className="font-bold text-gray-900">Close Admissions</h3>
+                  <p className="text-sm text-gray-500">Shuts down the portal entirely.</p>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default AdminDashboard;

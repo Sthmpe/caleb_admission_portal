@@ -6,31 +6,17 @@ import {
 } from 'lucide-react';
 
 const Apply = () => {
-    // Load settings to know which programs are open
-  const [settings] = useState(() => {
-    const saved = localStorage.getItem('portal_settings');
-    return saved ? JSON.parse(saved) : { programs: { ug: true, pg: true, jupeb: true } };
-  });
-
-  // Automatically select the first open program as the default
-  const getFirstAvailableProgram = () => {
-    if (settings.programs.ug) return 'Undergraduate Studies';
-    if (settings.programs.pg) return 'Postgraduate Studies';
-    if (settings.programs.jupeb) return 'JUPEB / Pre-Degree';
-    return '';
-  };
-
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const [isProcessing, setIsProcessing] = useState(false);
   const [generatedPin, setGeneratedPin] = useState('');
   
+  // Store form data in state so we can display it on the receipt
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
     phone: '',
-    program: getFirstAvailableProgram()
+    program: 'Undergraduate (B.Sc)'
   });
-
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -100,83 +86,83 @@ const Apply = () => {
                 </div>
 
                 <form onSubmit={handleProceedToPayment} className="space-y-5">
-                    {/* Full Name Input */}
-                    <div>
-                        <label htmlFor="fullName" className="block text-sm font-semibold text-gray-700 mb-1.5">Full Name</label>
-                        <div className="relative">
-                        <User className="w-5 h-5 absolute left-3 top-2.5 text-gray-400" aria-hidden="true" />
-                        <input 
-                            id="fullName"
-                            type="text" 
-                            name="fullName" 
-                            required 
-                            value={formData.fullName} 
-                            onChange={handleInputChange} 
-                            className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all" 
-                            placeholder="Surname First" 
-                        />
-                        </div>
+                {/* Full Name Input */}
+                <div>
+                    <label htmlFor="fullName" className="block text-sm font-semibold text-gray-700 mb-1.5">Full Name</label>
+                    <div className="relative">
+                    <User className="w-5 h-5 absolute left-3 top-2.5 text-gray-400" aria-hidden="true" />
+                    <input 
+                        id="fullName"
+                        type="text" 
+                        name="fullName" 
+                        required 
+                        value={formData.fullName} 
+                        onChange={handleInputChange} 
+                        className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all" 
+                        placeholder="Surname First" 
+                    />
                     </div>
+                </div>
 
-                    {/* Email Input */}
-                    <div>
-                        <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-1.5">Email Address</label>
-                        <div className="relative">
-                        <Mail className="w-5 h-5 absolute left-3 top-2.5 text-gray-400" aria-hidden="true" />
-                        <input 
-                            id="email"
-                            type="email" 
-                            name="email" 
-                            required 
-                            value={formData.email} 
-                            onChange={handleInputChange} 
-                            className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all" 
-                            placeholder="applicant@email.com" 
-                        />
-                        </div>
+                {/* Email Input */}
+                <div>
+                    <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-1.5">Email Address</label>
+                    <div className="relative">
+                    <Mail className="w-5 h-5 absolute left-3 top-2.5 text-gray-400" aria-hidden="true" />
+                    <input 
+                        id="email"
+                        type="email" 
+                        name="email" 
+                        required 
+                        value={formData.email} 
+                        onChange={handleInputChange} 
+                        className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all" 
+                        placeholder="applicant@email.com" 
+                    />
                     </div>
+                </div>
 
-                    {/* Phone Input */}
-                    <div>
-                        <label htmlFor="phone" className="block text-sm font-semibold text-gray-700 mb-1.5">Phone Number</label>
-                        <div className="relative">
-                        <Phone className="w-5 h-5 absolute left-3 top-2.5 text-gray-400" aria-hidden="true" />
-                        <input 
-                            id="phone"
-                            type="tel" 
-                            name="phone" 
-                            required 
-                            value={formData.phone} 
-                            onChange={handleInputChange} 
-                            className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all" 
-                            placeholder="080XXXXXXXX" 
-                        />
-                        </div>
+                {/* Phone Input */}
+                <div>
+                    <label htmlFor="phone" className="block text-sm font-semibold text-gray-700 mb-1.5">Phone Number</label>
+                    <div className="relative">
+                    <Phone className="w-5 h-5 absolute left-3 top-2.5 text-gray-400" aria-hidden="true" />
+                    <input 
+                        id="phone"
+                        type="tel" 
+                        name="phone" 
+                        required 
+                        value={formData.phone} 
+                        onChange={handleInputChange} 
+                        className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all" 
+                        placeholder="080XXXXXXXX" 
+                    />
                     </div>
+                </div>
 
-                    {/* Programme Select */}
-                    <div>
-                        <label htmlFor="program" className="block text-sm font-semibold text-gray-700 mb-1.5">Programme Type</label>
-                        <div className="relative">
-                        <BookOpen className="w-5 h-5 absolute left-3 top-2.5 text-gray-400" aria-hidden="true" />
-                        <select 
-                            id="program"
-                            name="program" 
-                            value={formData.program} 
-                            onChange={handleInputChange} 
-                            className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all appearance-none"
-                        >
-                            {settings.programs.ug && <option value="Undergraduate Studies">Undergraduate Studies</option>}
-                            {settings.programs.pg && <option value="Postgraduate Studies">Postgraduate Studies</option>}
-                            {settings.programs.jupeb && <option value="JUPEB / Pre-Degree">JUPEB / Pre-Degree</option>}
-                        </select>
-                        </div>
+                {/* Programme Select */}
+                <div>
+                    <label htmlFor="program" className="block text-sm font-semibold text-gray-700 mb-1.5">Programme Type</label>
+                    <div className="relative">
+                    <BookOpen className="w-5 h-5 absolute left-3 top-2.5 text-gray-400" aria-hidden="true" />
+                    <select 
+                        id="program"
+                        name="program" 
+                        value={formData.program} 
+                        onChange={handleInputChange} 
+                        className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all appearance-none"
+                    >
+                        <option value="Undergraduate (B.Sc)">Undergraduate (B.Sc)</option>
+                        <option value="Postgraduate (M.Sc / Ph.D)">Postgraduate (M.Sc / Ph.D)</option>
+                        <option value="JUPEB / Foundation">JUPEB / Foundation</option>
+                    </select>
                     </div>
+                </div>
 
-                    <button type="submit" className="w-full bg-blue-600 text-white font-bold py-3.5 rounded-lg hover:bg-blue-700 transition-colors mt-4 shadow-md">
-                        Proceed to Payment
-                    </button>
-                    </form>
+                <button type="submit" className="w-full bg-blue-600 text-white font-bold py-3.5 rounded-lg hover:bg-blue-700 transition-colors mt-4 shadow-md">
+                    Proceed to Payment
+                </button>
+                </form>
               </div>
             )}
 

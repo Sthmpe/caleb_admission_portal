@@ -28,9 +28,9 @@ const AdminDashboard = () => {
   });
 
   // Master update function
-  const updateSettings = (newSettings: PortalSettings) => {
-    setSettings(newSettings);
-    localStorage.setItem('portal_settings', JSON.stringify(newSettings));
+  const updateSettings = (newSettings: any) => {
+	setSettings(newSettings);
+	localStorage.setItem('portal_settings', JSON.stringify(newSettings));
   };
 
   const handleStatusChange = (status: string) => {

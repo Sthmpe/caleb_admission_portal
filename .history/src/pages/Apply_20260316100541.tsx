@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { 
   ArrowLeft, User, Mail, Phone, BookOpen, 
   CreditCard, CheckCircle, ShieldCheck, Copy,
-  Tag, ChevronDown,
+  tag
 } from 'lucide-react';
 
 const Apply = () => {
@@ -29,8 +29,7 @@ const Apply = () => {
     fullName: '',
     email: '',
     phone: '',
-    program: getFirstAvailableProgram(),
-    referenceNumber: '',
+    program: getFirstAvailableProgram()
   });
 
 
@@ -156,25 +155,6 @@ const Apply = () => {
                         </div>
                     </div>
 
-                    {/* NEW: Optional Reference Number */}
-                    <div>
-                        <label htmlFor="referenceNumber" className="block text-sm font-semibold text-gray-700 mb-1.5">
-                        Agent / Reference Number <span className="text-gray-400 font-normal">(Optional)</span>
-                        </label>
-                        <div className="relative">
-                        <Tag className="w-5 h-5 absolute left-3 top-2.5 text-gray-400" aria-hidden="true" />
-                        <input 
-                            id="referenceNumber" 
-                            type="text" 
-                            name="referenceNumber" 
-                            value={formData.referenceNumber} 
-                            onChange={handleInputChange} 
-                            className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-lg focus:bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all" 
-                            placeholder="e.g. CRF-1234" 
-                        />
-                        </div>
-                    </div>
-
                     {/* Programme Select */}
                     <div>
                         <label htmlFor="program" className="block text-sm font-semibold text-gray-700 mb-1.5">Programme Type</label>
@@ -191,7 +171,6 @@ const Apply = () => {
                             {settings.programs.pg && <option value="Postgraduate Studies">Postgraduate Studies</option>}
                             {settings.programs.jupeb && <option value="JUPEB / Pre-Degree">JUPEB / Pre-Degree</option>}
                         </select>
-                        <ChevronDown className="w-5 h-5 absolute right-3 top-2.5 text-gray-500 pointer-events-none" aria-hidden="true" />
                         </div>
                     </div>
 

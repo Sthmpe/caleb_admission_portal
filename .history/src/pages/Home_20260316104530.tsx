@@ -137,28 +137,16 @@ const Home = () => {
                   <p className="text-sm text-gray-600 mb-6">
                     Application forms are currently available for purchase.
                   </p>
-                  
                   <Link 
                     to="/apply" 
-                    className="flex items-center justify-center gap-2 w-full bg-blue-600 text-white font-bold py-4 px-6 rounded-lg hover:bg-blue-700 transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 mb-2"
+                    className="flex items-center justify-center gap-2 w-full bg-blue-600 text-white font-bold py-4 px-6 rounded-lg hover:bg-blue-700 transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5"
                   >
                     <FileText className="w-5 h-5" />
                     Purchase Form (₦10,000)
                   </Link>
-                  <p className="text-xs text-gray-400 mb-6 flex items-center justify-center gap-1">
+                  <p className="text-xs text-gray-400 mt-4 flex items-center justify-center gap-1">
                     <ShieldCheck className="w-3 h-3" /> Secure Payment Gateway
                   </p>
-
-                  {/* NEW: Continue Biodata Section */}
-                  <div className="pt-5 border-t border-gray-100">
-                    <p className="text-sm font-semibold text-gray-700 mb-3">Already have an Application PIN?</p>
-                    <Link 
-                      to="/biodata" 
-                      className="flex items-center justify-center gap-2 w-full bg-white text-blue-700 border-2 border-blue-600 font-bold py-3 px-6 rounded-lg hover:bg-blue-50 transition-all"
-                    >
-                      <Lock className="w-4 h-4" /> Continue Biodata
-                    </Link>
-                  </div>
                 </div>
               )}
 

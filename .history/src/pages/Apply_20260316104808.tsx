@@ -247,7 +247,6 @@ const Apply = () => {
               </div>
             )}
 
-            {/* STEP 3: Success & PIN Generated */}
             {step === 3 && (
               <div className="p-8 text-center">
                 <div className="w-20 h-20 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-6">

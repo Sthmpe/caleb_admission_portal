@@ -266,20 +266,14 @@ const Apply = () => {
                       <Copy className="w-5 h-5" />
                     </button>
                   </div>
-                  <p className="text-xs text-blue-600 mt-4 font-medium">
-                    Please copy this PIN. You need it to log in and complete your main biodata form.
+                  <p className="text-xs text-blue-600 mt-4">
+                    Please copy this PIN. You will need it to login and complete your main biodata form.
                   </p>
                 </div>
 
-                {/* UPDATED: Clear Call to Actions */}
-                <div className="space-y-3">
-                  <Link to="/biodata" className="flex items-center justify-center gap-2 w-full bg-blue-600 text-white font-bold py-3.5 rounded-lg hover:bg-blue-700 transition-colors shadow-md">
-                    Proceed to Biodata Form <ArrowLeft className="w-5 h-5 rotate-180" />
-                  </Link>
-                  <Link to="/" className="inline-block w-full bg-white text-gray-600 font-bold py-3.5 rounded-lg border border-gray-200 hover:bg-gray-50 transition-colors">
-                    Return to Homepage
-                  </Link>
-                </div>
+                <Link to="/" className="inline-block w-full bg-blue-600 text-white font-bold py-3.5 rounded-lg hover:bg-blue-700 transition-colors shadow-md">
+                  Return to Homepage
+                </Link>
               </div>
             )}
 

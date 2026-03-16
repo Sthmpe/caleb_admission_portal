@@ -1,10 +1,9 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 // import Navbar from './components/Navbar';
 import Home from './pages/Home';
-import BiodataForm from './pages/BiodataForm';
 import Apply from './pages/Apply';
 import AdminDashboard from './pages/AdminDashboard';
-
+import BiodataForm from './pages/BiodataForm';
 
 function App() {
   return (
@@ -18,7 +17,7 @@ function App() {
           {/* Public Routes */}
           <Route path="/" element={<Home />} />
           <Route path="/apply" element={<Apply />} />
-          <Route path="/biodata" element={<BiodataForm />} />
+          
           {/* Secret Admin Route - We will add password protection later */}
           <Route path="/admin-portal-xyz" element={<AdminDashboard />} />
         </Routes>

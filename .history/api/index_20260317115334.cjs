@@ -32,7 +32,6 @@ const db = admin.firestore();
 // ==========================================
 // 0. HEALTH CHECK
 // ==========================================
-
 app.get('/api/health', (req, res) => {
   res.status(200).json({ 
     status: 'success', 

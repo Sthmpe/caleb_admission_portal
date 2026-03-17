@@ -17,6 +17,7 @@ const BiodataForm = () => {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [loginError, setLoginError] = useState('');
+  const [ setIsDownloading] = useState(false);
   
   // Applicant Data from Database
   const [applicantInfo, setApplicantInfo] = useState<{name: string, program: string, email: string} | null>(null);
@@ -41,6 +42,21 @@ const BiodataForm = () => {
       .then(data => setIsPortalOpen(data.status === 'open'))
       .catch(() => setIsPortalOpen(true)); // Default open if error
   }, []);
+
+  const downloadPDF = async () => {
+    setIsDownloading(true);
+    try {
+      const response = await fetch(`${API_BASE}/api/biodata/generate-pdf`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ pin: pin.toUpperCase() })
+      });
+
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || "Failed to generate PDF");
+
+      // Trigger actual file download
+      
 
   // --- HANDLE PIN LOGIN ---
   const handleLogin = async (e: React.FormEvent) => {

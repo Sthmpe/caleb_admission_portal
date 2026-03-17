@@ -17,6 +17,7 @@ const BiodataForm = () => {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [loginError, setLoginError] = useState('');
+  const [ setIsDownloading] = useState(false);
   
   // Applicant Data from Database
   const [applicantInfo, setApplicantInfo] = useState<{name: string, program: string, email: string} | null>(null);

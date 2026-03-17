@@ -17,6 +17,7 @@ const BiodataForm = () => {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [loginError, setLoginError] = useState('');
+  const [isDownloading, setIsDownloading] = useState(false);
   
   // Applicant Data from Database
   const [applicantInfo, setApplicantInfo] = useState<{name: string, program: string, email: string} | null>(null);
@@ -41,6 +42,32 @@ const BiodataForm = () => {
       .then(data => setIsPortalOpen(data.status === 'open'))
       .catch(() => setIsPortalOpen(true)); // Default open if error
   }, []);
+
+  const downloadPDF = async () => {
+    setIsDownloading(true);
+    try {
+      const response = await fetch(`${API_BASE}/api/biodata/generate-pdf`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ pin: pin.toUpperCase() })
+      });
+
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || "Failed to generate PDF");
+
+      // Trigger actual file download
+      const link = document.createElement('a');
+      link.href = `data:application/pdf;base64,${data.pdf}`;
+      link.download = `Caleb_Admission_Form_${pin}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (error) {
+      alert("Error: " + (error instanceof Error ? error.message : "Could not download PDF"));
+    } finally {
+      setIsDownloading(false);
+    }
+  };
 
   // --- HANDLE PIN LOGIN ---
   const handleLogin = async (e: React.FormEvent) => {

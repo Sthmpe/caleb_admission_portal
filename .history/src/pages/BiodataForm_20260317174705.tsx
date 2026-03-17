@@ -17,6 +17,7 @@ const BiodataForm = () => {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [loginError, setLoginError] = useState('');
+  const [ setIsDownloading] = useState(false);
   
   // Applicant Data from Database
   const [applicantInfo, setApplicantInfo] = useState<{name: string, program: string, email: string} | null>(null);
@@ -41,6 +42,7 @@ const BiodataForm = () => {
       .then(data => setIsPortalOpen(data.status === 'open'))
       .catch(() => setIsPortalOpen(true)); // Default open if error
   }, []);
+
 
   // --- HANDLE PIN LOGIN ---
   const handleLogin = async (e: React.FormEvent) => {

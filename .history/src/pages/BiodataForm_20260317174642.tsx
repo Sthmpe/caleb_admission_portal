@@ -17,6 +17,7 @@ const BiodataForm = () => {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [loginError, setLoginError] = useState('');
+  const [ setIsDownloading] = useState(false);
   
   // Applicant Data from Database
   const [applicantInfo, setApplicantInfo] = useState<{name: string, program: string, email: string} | null>(null);
@@ -42,51 +43,6 @@ const BiodataForm = () => {
       .catch(() => setIsPortalOpen(true)); // Default open if error
   }, []);
 
-  // --- HANDLE PIN LOGIN ---
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoginError('');
-    setIsLoading(true);
-
-    try {
-      // Ask the backend if this PIN exists
-      const response = await fetch(`${API_BASE}/api/biodata/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ pin: pin.toUpperCase() })
-      });
-
-      if (!response.ok) {
-        throw new Error('Invalid PIN. Please check and try again.');
-      }
-
-      const data = await response.json();
-
-      // Check if already completed
-      if (data.status === 'completed') {
-        setIsSubmitted(true);
-      } else {
-        // Populate the form with known data from payment
-        const nameParts = data.name.split(' ');
-        setFormData(prev => ({
-          ...prev,
-          firstName: nameParts[nameParts.length - 1] || '', // Guessing last word is first name
-          lastName: nameParts[0] || '', // Guessing first word is surname
-          ...data.biodata // Load any previously saved drafts from DB
-        }));
-      }
-
-      setApplicantInfo({ name: data.name, program: data.program, email: data.email });
-      setIsLoggedIn(true);
-
-    } catch (error) {
-      if (error instanceof Error) {
-        setLoginError(error.message);
-      }
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   // --- HANDLE INPUTS ---
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {

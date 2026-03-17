@@ -108,18 +108,5 @@ app.post(['/api/agents', '/agents'], async (req, res) => {
   }
 });
 
-// ==========================================
-// LOCAL DEVELOPMENT SETUP
-// ==========================================
-// This code checks if you are running the file directly on your computer.
-// If yes, it starts a local server on port 3001. If Vercel runs it, it skips this!
-if (require.main === module) {
-  const PORT = 3001;
-  app.listen(PORT, () => {
-    console.log(`🚀 Local backend is running on http://localhost:${PORT}`);
-    console.log(`👉 Test the health route here: http://localhost:${PORT}/api/health`);
-  });
-}
-
 // Native Vercel Export
 module.exports = app;

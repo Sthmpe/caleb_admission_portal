@@ -1,7 +1,12 @@
-const express = require('express');
-const cors = require('cors');
-const admin = require('firebase-admin');
-require('dotenv').config();
+import express from 'express';
+import cors from 'cors';
+import admin from 'firebase-admin';
+import dotenv from 'dotenv';
+
+// Only load dotenv if we are NOT on Vercel
+if (!process.env.VERCEL) {
+  dotenv.config();
+}
 
 const app = express();
 app.use(cors());
@@ -11,12 +16,13 @@ app.use(express.json());
 try {
   if (!admin.apps.length) {
     if (!process.env.FIREBASE_PROJECT_ID || !process.env.FIREBASE_PRIVATE_KEY) {
-      console.error("🚨 MISSING FIREBASE KEYS IN VERCEL ENVIRONMENT VARIABLES!");
+      console.error("🚨 MISSING FIREBASE KEYS IN ENVIRONMENT VARIABLES!");
     } else {
       admin.initializeApp({
         credential: admin.credential.cert({
           projectId: process.env.FIREBASE_PROJECT_ID,
           clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+          // Handle newline characters in the private key
           privateKey: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'), 
         }),
       });
@@ -32,7 +38,6 @@ const db = admin.firestore();
 // ==========================================
 // 0. HEALTH CHECK
 // ==========================================
-// Using an array so it catches it no matter how Vercel rewrites it!
 app.get(['/api/health', '/health'], (req, res) => {
   res.status(200).json({ 
     status: 'success', 
@@ -108,18 +113,5 @@ app.post(['/api/agents', '/agents'], async (req, res) => {
   }
 });
 
-// ==========================================
-// LOCAL DEVELOPMENT SETUP
-// ==========================================
-// This code checks if you are running the file directly on your computer.
-// If yes, it starts a local server on port 3001. If Vercel runs it, it skips this!
-if (require.main === module) {
-  const PORT = 3001;
-  app.listen(PORT, () => {
-    console.log(`🚀 Local backend is running on http://localhost:${PORT}`);
-    console.log(`👉 Test the health route here: http://localhost:${PORT}/api/health`);
-  });
-}
-
-// Native Vercel Export
-module.exports = app;
+// Vercel Serverless Export
+export default app;

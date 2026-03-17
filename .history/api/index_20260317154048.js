@@ -186,6 +186,8 @@ app.post(['/api/pay/init', '/pay/init'], async (req, res) => {
   }
 });
 
+
+
 // POST: Monnify Webhook (CUL generation happens here)
 app.post(['/api/monnify/webhook', '/monnify/webhook'], async (req, res) => {
   const { eventType, eventData } = req.body;
@@ -208,7 +210,6 @@ app.post(['/api/monnify/webhook', '/monnify/webhook'], async (req, res) => {
         amount: p.totalAmount, // Log what they actually paid
         status: 'ongoing',
         pin: pin,
-        paymentReference: payRef,
         createdAt: admin.firestore.FieldValue.serverTimestamp()
       });
 
@@ -224,32 +225,6 @@ app.post(['/api/monnify/webhook', '/monnify/webhook'], async (req, res) => {
   
   // Acknowledge webhook receipt to Monnify
   res.status(200).send('OK');
-});
-
-// GET: Verify Payment & Fetch PIN
-app.get(['/api/pay/verify', '/pay/verify'], async (req, res) => {
-  const { ref } = req.query;
-  if (!ref) return res.status(400).json({ error: 'Missing reference' });
-
-  try {
-    // 1. Search the applicants collection for this specific payment reference
-    const applicantQuery = await db.collection('applicants').where('paymentReference', '==', ref).limit(1).get();
-    
-    if (!applicantQuery.empty) {
-      const data = applicantQuery.docs[0].data();
-      return res.status(200).json({ pin: data.pin, name: data.name }); // Payment confirmed!
-    }
-
-    // 2. If it's not in applicants yet, check if it's still waiting in pending_payments
-    const pendingDoc = await db.collection('pending_payments').doc(ref).get();
-    if (pendingDoc.exists) {
-      return res.status(400).json({ error: 'Payment still pending. We are waiting for Monnify.' });
-    }
-
-    res.status(404).json({ error: 'Payment reference not found.' });
-  } catch (error) {
-    res.status(500).json({ error: 'Verification failed' });
-  }
 });
 
 export default app;

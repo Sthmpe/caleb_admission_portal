@@ -79,14 +79,9 @@ const Apply = () => {
         throw new Error("Invalid response from payment gateway.");
       }
 
-    } catch (error) {
+    } catch (error: any) {
       console.error(error);
-      // Check if it's a real Error object before reading .message
-      if (error instanceof Error) {
-        setErrorMessage(error.message);
-      } else {
-        setErrorMessage("An unexpected error occurred.");
-      }
+      setErrorMessage(error.message);
       setIsProcessing(false);
     }
   };

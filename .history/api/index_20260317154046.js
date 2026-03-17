@@ -186,46 +186,6 @@ app.post(['/api/pay/init', '/pay/init'], async (req, res) => {
   }
 });
 
-// POST: Monnify Webhook (CUL generation happens here)
-app.post(['/api/monnify/webhook', '/monnify/webhook'], async (req, res) => {
-  const { eventType, eventData } = req.body;
-
-  if (eventType === 'SUCCESSFUL_TRANSACTION' && eventData.paymentStatus === 'PAID') {
-    const payRef = eventData.paymentReference;
-    const pendingDoc = await db.collection('pending_payments').doc(payRef).get();
-
-    if (pendingDoc.exists) {
-      const p = pendingDoc.data();
-      
-      // Generate CUL Applicant Number
-      const pin = `CUL-2026-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
-
-      await db.collection('applicants').doc(pin).set({
-        name: p.customerName,
-        email: p.customerEmail,
-        program: p.program,
-        refCode: p.refCode,
-        amount: p.totalAmount, // Log what they actually paid
-        status: 'ongoing',
-        pin: pin,
-        paymentReference: payRef,
-        createdAt: admin.firestore.FieldValue.serverTimestamp()
-      });
-
-      // Update Agent count if needed
-      if (p.refCode !== 'DIRECT') {
-        await db.collection('agents').doc(p.refCode).update({
-          uses: admin.firestore.FieldValue.increment(1)
-        });
-      }
-      await db.collection('pending_payments').doc(payRef).delete();
-    }
-  }
-  
-  // Acknowledge webhook receipt to Monnify
-  res.status(200).send('OK');
-});
-
 // GET: Verify Payment & Fetch PIN
 app.get(['/api/pay/verify', '/pay/verify'], async (req, res) => {
   const { ref } = req.query;
@@ -250,6 +210,45 @@ app.get(['/api/pay/verify', '/pay/verify'], async (req, res) => {
   } catch (error) {
     res.status(500).json({ error: 'Verification failed' });
   }
+});
+
+// POST: Monnify Webhook (CUL generation happens here)
+app.post(['/api/monnify/webhook', '/monnify/webhook'], async (req, res) => {
+  const { eventType, eventData } = req.body;
+
+  if (eventType === 'SUCCESSFUL_TRANSACTION' && eventData.paymentStatus === 'PAID') {
+    const payRef = eventData.paymentReference;
+    const pendingDoc = await db.collection('pending_payments').doc(payRef).get();
+
+    if (pendingDoc.exists) {
+      const p = pendingDoc.data();
+      
+      // Generate CUL Applicant Number
+      const pin = `CUL-2026-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
+
+      await db.collection('applicants').doc(pin).set({
+        name: p.customerName,
+        email: p.customerEmail,
+        program: p.program,
+        refCode: p.refCode,
+        amount: p.totalAmount, // Log what they actually paid
+        status: 'ongoing',
+        pin: pin,
+        createdAt: admin.firestore.FieldValue.serverTimestamp()
+      });
+
+      // Update Agent count if needed
+      if (p.refCode !== 'DIRECT') {
+        await db.collection('agents').doc(p.refCode).update({
+          uses: admin.firestore.FieldValue.increment(1)
+        });
+      }
+      await db.collection('pending_payments').doc(payRef).delete();
+    }
+  }
+  
+  // Acknowledge webhook receipt to Monnify
+  res.status(200).send('OK');
 });
 
 export default app;

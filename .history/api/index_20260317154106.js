@@ -208,7 +208,6 @@ app.post(['/api/monnify/webhook', '/monnify/webhook'], async (req, res) => {
         amount: p.totalAmount, // Log what they actually paid
         status: 'ongoing',
         pin: pin,
-        paymentReference: payRef,
         createdAt: admin.firestore.FieldValue.serverTimestamp()
       });
 

@@ -65,7 +65,7 @@ const Apply = () => {
           customerEmail: formData.email,
           program: formData.program,
           refCode: formData.referenceNumber || 'DIRECT',
-          redirectUrl: `${window.location.origin}/success`
+          
         })
       });
 

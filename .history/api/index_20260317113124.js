@@ -8,6 +8,7 @@ app.use(cors());
 app.use(express.json());
 
 // Initialize Firebase Admin securely
+// Initialize Firebase Admin securely
 try {
   if (!admin.apps.length) {
     // Check if keys actually exist before trying to connect

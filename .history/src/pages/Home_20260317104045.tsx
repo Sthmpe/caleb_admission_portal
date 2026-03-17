@@ -61,29 +61,24 @@ const Home = () => {
         </div>
         
         {/* Support Dropdown Menu */}
-        <div className="relative">
-          <button 
-            onClick={() => setIsSupportOpen(!isSupportOpen)}
-            className="text-sm font-semibold text-gray-600 hover:text-blue-700 transition flex items-center gap-1 py-2"
-          >
+        <div className="relative group">
+          <button className="text-sm font-semibold text-gray-600 hover:text-blue-700 transition flex items-center gap-1 py-2">
             <HelpCircle className="w-4 h-4" /> Support
           </button>
           
-          {/* Dropdown Card (Now controlled by React state instead of hover) */}
-          {isSupportOpen && (
-            <div className="absolute right-0 top-full mt-1 w-56 md:w-64 bg-white border border-gray-100 shadow-xl rounded-lg p-4 md:p-5 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
-              <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Contact Support</p>
-              <a href="#" className="flex items-center gap-3 text-sm text-gray-700 hover:text-green-600 transition mb-3">
-                <WhatsAppIcon className="w-4 h-4 text-green-500" /> WhatsApp Support
-              </a>
-              <a href="tel:0201-2910684" className="flex items-center gap-3 text-sm text-gray-700 hover:text-blue-600 transition mb-3">
-                <Phone className="w-4 h-4 text-blue-500" /> 0201-2910684
-              </a>
-              <a href="mailto:info@calebuniversity.edu.ng" className="flex items-center gap-3 text-sm text-gray-700 hover:text-red-600 transition">
-                <Mail className="w-4 h-4 text-red-500 truncate" /> info@calebuniversity.edu.ng
-              </a>
-            </div>
-          )}
+          {/* Dropdown Card */}
+          <div className="absolute right-0 top-full mt-1 w-56 md:w-64 bg-white border border-gray-100 shadow-xl rounded-lg p-4 md:p-5 hidden group-hover:block z-50">
+            <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Contact Support</p>
+            <a href="#" className="flex items-center gap-3 text-sm text-gray-700 hover:text-green-600 transition mb-3">
+              <WhatsAppIcon className="w-4 h-4 text-green-500" /> WhatsApp Support
+            </a>
+            <a href="tel:0201-2910684" className="flex items-center gap-3 text-sm text-gray-700 hover:text-blue-600 transition mb-3">
+              <Phone className="w-4 h-4 text-blue-500" /> 0201-2910684
+            </a>
+            <a href="mailto:info@calebuniversity.edu.ng" className="flex items-center gap-3 text-sm text-gray-700 hover:text-red-600 transition">
+              <Mail className="w-4 h-4 text-red-500 truncate" /> info@calebuniversity.edu.ng
+            </a>
+          </div>
         </div>
       </nav>
 

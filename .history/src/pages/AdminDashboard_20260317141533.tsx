@@ -58,7 +58,7 @@ const AdminDashboard = () => {
   useEffect(() => {
     // Set up the AbortController for the 15-second timeout
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 60000); 
+    const timeoutId = setTimeout(() => controller.abort(), 15000); 
 
     const fetchDashboardData = async () => {
       try {
@@ -76,9 +76,9 @@ const AdminDashboard = () => {
         if (agentsRes.ok) setAgents(await agentsRes.json());
         if (applicantsRes.ok) setApplicants(await applicantsRes.json());
         
-      } catch (error) {
+      } catch (error: any) {
         // Catch the specific AbortError from our timeout
-        if (error instanceof Error && error.name === 'AbortError') {
+        if (error.name === 'AbortError') {
           console.error("Dashboard fetch timed out!");
           setErrorMessage("Connection timed out. The database took longer than 15 seconds to respond.");
         } else {

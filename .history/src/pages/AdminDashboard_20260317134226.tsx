@@ -1,13 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { 
   Settings, CheckCircle, XCircle, Clock, ArrowLeft, 
   Calendar, BookOpen, Users, Plus, Copy, 
-  BarChart3, FileText, Activity, ChevronLeft, ChevronRight, Search, Loader2
+  BarChart3, FileText, Activity, ChevronLeft, ChevronRight, Search
 } from 'lucide-react';
-
-// --- CONFIG ---
-const API_BASE = import.meta.env.DEV ? 'http://localhost:3001' : '';
 
 // --- INTERFACES ---
 interface PortalSettings {
@@ -17,7 +14,6 @@ interface PortalSettings {
 }
 
 interface Agent {
-  id?: string;
   code: string;
   name: string;
   phone: string;
@@ -30,125 +26,79 @@ interface Applicant {
   pin: string;
   program: string;
   refCode: string;
-  status: string;
-  createdAt: string | Record<string, unknown>; 
+  status: 'completed' | 'ongoing';
+  date: string;
 }
+
+const defaultSettings: PortalSettings = {
+  status: 'coming_soon',
+  comingSoonDate: '',
+  programs: { ug: true, pg: true, jupeb: true }
+};
+
+// --- MOCK DATA FOR UI TESTING ---
+const mockApplicants: Applicant[] = [
+  { id: '1', name: 'David Ojo', pin: 'CUB-2026-X8F2', program: 'Undergraduate', refCode: 'CRF-A1B2', status: 'completed', date: 'Mar 15, 2026' },
+  { id: '2', name: 'Oiza Ibrahim', pin: 'CUB-2026-J9K3', program: 'Postgraduate', refCode: '-', status: 'ongoing', date: 'Mar 16, 2026' },
+  { id: '3', name: 'Samuel Emmanuel', pin: 'CUB-2026-P2M4', program: 'Undergraduate', refCode: 'CRF-Z9Y8', status: 'completed', date: 'Mar 16, 2026' },
+  { id: '4', name: 'Grace Adeyemi', pin: 'CUB-2026-L5N6', program: 'JUPEB', refCode: 'CRF-A1B2', status: 'ongoing', date: 'Mar 17, 2026' },
+  { id: '5', name: 'Tobi Daniels', pin: 'CUB-2026-W3E4', program: 'Undergraduate', refCode: '-', status: 'completed', date: 'Mar 17, 2026' },
+  { id: '6', name: 'Chioma Eze', pin: 'CUB-2026-R7T8', program: 'Postgraduate', refCode: 'CRF-QWER', status: 'completed', date: 'Mar 17, 2026' },
+  { id: '7', name: 'Aisha Bello', pin: 'CUB-2026-B9Y2', program: 'Undergraduate', refCode: 'CRF-A1B2', status: 'completed', date: 'Mar 18, 2026' },
+];
 
 const AdminDashboard = () => {
   // --- STATE ---
-  const [settings, setSettings] = useState<PortalSettings | null>(null);
-  const [agents, setAgents] = useState<Agent[]>([]);
-  const [applicants, setApplicants] = useState<Applicant[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [errorMessage, setErrorMessage] = useState(''); // NEW: Error state for timeout
+  const [settings, setSettings] = useState<PortalSettings>(() => {
+    const saved = localStorage.getItem('portal_settings');
+    return saved ? JSON.parse(saved) : defaultSettings;
+  });
 
-  // UI State
+  const [agents, setAgents] = useState<Agent[]>(() => {
+    const saved = localStorage.getItem('portal_agents');
+    return saved ? JSON.parse(saved) : [];
+  });
+
+  // Agent Form & Pagination State
   const [newAgentName, setNewAgentName] = useState('');
   const [newAgentPhone, setNewAgentPhone] = useState('');
-  const [isGenerating, setIsGenerating] = useState(false);
-  
-  // Pagination State
-  const [searchQuery, setSearchQuery] = useState('');
-  const [currentPage, setCurrentPage] = useState(1);
   const [agentPage, setAgentPage] = useState(1);
-  const itemsPerPage = 5;
   const agentsPerPage = 3;
 
-  // --- FETCH INITIAL DATA WITH TIMEOUT ---
-  useEffect(() => {
-    // Set up the AbortController for the 15-second timeout
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 60000); 
-
-    const fetchDashboardData = async () => {
-      try {
-        // Pass the controller's signal to abort the fetch if it takes too long
-        const [settingsRes, agentsRes, applicantsRes] = await Promise.all([
-          fetch(`${API_BASE}/api/settings`, { signal: controller.signal }),
-          fetch(`${API_BASE}/api/agents`, { signal: controller.signal }),
-          fetch(`${API_BASE}/api/applicants`, { signal: controller.signal })
-        ]);
-
-        // If it succeeds before 15 seconds, clear the timeout!
-        clearTimeout(timeoutId);
-
-        if (settingsRes.ok) setSettings(await settingsRes.json());
-        if (agentsRes.ok) setAgents(await agentsRes.json());
-        if (applicantsRes.ok) setApplicants(await applicantsRes.json());
-        
-      } catch (error) {
-        // Catch the specific AbortError from our timeout
-        if (error instanceof Error && error.name === 'AbortError') {
-          console.error("Dashboard fetch timed out!");
-          setErrorMessage("Connection timed out. The database took longer than 15 seconds to respond.");
-        } else {
-          console.error("Error fetching data:", error);
-          setErrorMessage("Failed to load dashboard data. Please check your connection.");
-        }
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchDashboardData();
-
-    // Cleanup function in case the component unmounts early
-    return () => clearTimeout(timeoutId);
-  }, []);
+  // Applicant Search & Pagination State
+  const [searchQuery, setSearchQuery] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 4;
 
   // --- HANDLERS ---
-  const updateSettings = async (newSettings: PortalSettings) => {
-    setSettings(newSettings); // Optimistic UI update
-    try {
-      await fetch(`${API_BASE}/api/settings`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newSettings)
-      });
-    } catch (error) {
-        console.error("Settings save error:", error);
-        alert("Failed to save settings to the database.");
-    }
+  const updateSettings = (newSettings: PortalSettings) => {
+    setSettings(newSettings);
+    localStorage.setItem('portal_settings', JSON.stringify(newSettings));
   };
 
-  const handleStatusChange = (status: string) => {
-    if (settings) updateSettings({ ...settings, status });
-  };
-
+  const handleStatusChange = (status: string) => updateSettings({ ...settings, status });
   const handleProgramToggle = (programKey: 'ug' | 'pg' | 'jupeb') => {
-    if (settings) {
-       updateSettings({ 
-         ...settings, 
-         programs: { ...settings.programs, [programKey]: !settings.programs[programKey] } 
-       });
-    }
+    updateSettings({ ...settings, programs: { ...settings.programs, [programKey]: !settings.programs[programKey] } });
   };
 
-  const generateAgentCode = async (e: React.FormEvent) => {
+  // Generate Agent
+  const generateAgentCode = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newAgentName || !newAgentPhone) return alert("Please enter both Name and Phone Number.");
-    
-    setIsGenerating(true);
-    try {
-      const response = await fetch(`${API_BASE}/api/agents`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: newAgentName, phone: newAgentPhone })
-      });
 
-      if (response.ok) {
-        const data = await response.json();
-        setAgents([data.agent, ...agents]);
-        setNewAgentName('');
-        setNewAgentPhone('');
-        setAgentPage(1);
-      }
-    } catch (error) {
-        console.error("Agent creation error:", error);
-      alert("Failed to generate agent code.");
-    } finally {
-      setIsGenerating(false);
-    }
+    const randomString = Math.random().toString(36).substring(2, 6).toUpperCase();
+    const newCode = `CRF-${randomString}`;
+    
+    const newAgent: Agent = { code: newCode, name: newAgentName, phone: newAgentPhone, uses: 0 };
+    const updatedAgents = [newAgent, ...agents];
+    
+    setAgents(updatedAgents);
+    localStorage.setItem('portal_agents', JSON.stringify(updatedAgents));
+    
+    // Clear form and jump back to page 1 to see the new agent
+    setNewAgentName('');
+    setNewAgentPhone('');
+    setAgentPage(1);
   };
 
   const copyToClipboard = (code: string) => {
@@ -157,13 +107,15 @@ const AdminDashboard = () => {
   };
 
   // --- CALCULATIONS FOR UI ---
-  const filteredApplicants = applicants.filter(app => {
+
+  // 1. Applicant Filtering & Pagination
+  const filteredApplicants = mockApplicants.filter(app => {
     const query = searchQuery.toLowerCase();
     return (
-      app.name?.toLowerCase().includes(query) ||
-      app.pin?.toLowerCase().includes(query) ||
-      app.refCode?.toLowerCase().includes(query) ||
-      app.program?.toLowerCase().includes(query)
+      app.name.toLowerCase().includes(query) ||
+      app.pin.toLowerCase().includes(query) ||
+      app.refCode.toLowerCase().includes(query) ||
+      app.program.toLowerCase().includes(query)
     );
   });
 
@@ -171,48 +123,19 @@ const AdminDashboard = () => {
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentApplicants = filteredApplicants.slice(indexOfFirstItem, indexOfLastItem);
-  const totalPages = Math.ceil(totalApplicants / itemsPerPage) || 1; 
+  const totalPages = Math.ceil(totalApplicants / itemsPerPage) || 1; // Prevent 0 pages
 
+  // Quick Stats (Based on the full mock list, not filtered)
+  const statsTotal = mockApplicants.length;
+  const statsCompleted = mockApplicants.filter(a => a.status === 'completed').length;
+  const statsOngoing = mockApplicants.filter(a => a.status === 'ongoing').length;
+
+  // 2. Agent Pagination
   const totalAgentPages = Math.ceil(agents.length / agentsPerPage) || 1;
   const indexOfLastAgent = agentPage * agentsPerPage;
   const indexOfFirstAgent = indexOfLastAgent - agentsPerPage;
   const currentAgents = agents.slice(indexOfFirstAgent, indexOfLastAgent);
 
-  // Quick Stats
-  const statsTotal = applicants.length;
-  const statsRevenue = applicants.length * 10000; // Estimated based on Monnify payments
-  const statsAgents = agents.length;
-
-  // --- RENDER LOADING STATE ---
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50">
-        <Loader2 className="w-10 h-10 text-blue-600 animate-spin mb-4" />
-        <h2 className="text-xl font-bold text-gray-800">Connecting to Database...</h2>
-      </div>
-    );
-  }
-
-  // --- RENDER ERROR STATE (TIMEOUT OR FETCH FAIL) ---
-  if (errorMessage) {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 p-4">
-        <div className="bg-red-50 text-red-700 p-6 rounded-xl border border-red-200 text-center max-w-md w-full shadow-sm">
-          <XCircle className="w-12 h-12 mx-auto mb-4 text-red-500" />
-          <h2 className="text-xl font-bold mb-2">Network Error</h2>
-          <p className="text-sm font-medium">{errorMessage}</p>
-          <button 
-            onClick={() => window.location.reload()} 
-            className="mt-6 w-full bg-red-600 text-white px-6 py-2.5 rounded-lg font-bold hover:bg-red-700 transition"
-          >
-            Try Again
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  // --- RENDER MAIN DASHBOARD ---
   return (
     <div className="min-h-screen bg-gray-50 p-4 md:p-8 font-sans pb-12">
       <div className="max-w-6xl mx-auto space-y-6">
@@ -228,7 +151,7 @@ const AdminDashboard = () => {
           </Link>
         </div>
 
-        {/* TOP METRICS ROW (REAL DATA) */}
+        {/* TOP METRICS ROW */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
           <div className="bg-white p-6 rounded-xl shadow-sm flex items-center gap-4">
             <div className="w-12 h-12 bg-blue-50 rounded-full flex items-center justify-center shrink-0">
@@ -244,17 +167,17 @@ const AdminDashboard = () => {
               <FileText className="w-6 h-6 text-green-600" aria-hidden="true" />
             </div>
             <div>
-              <p className="text-sm text-gray-500 font-semibold uppercase tracking-wider">Est. Revenue</p>
-              <p className="text-2xl font-black text-gray-900">₦{statsRevenue.toLocaleString()}</p>
+              <p className="text-sm text-gray-500 font-semibold uppercase tracking-wider">Completed Biodata</p>
+              <p className="text-2xl font-black text-gray-900">{statsCompleted}</p>
             </div>
           </div>
           <div className="bg-white p-6 rounded-xl shadow-sm flex items-center gap-4">
-            <div className="w-12 h-12 bg-purple-50 rounded-full flex items-center justify-center shrink-0">
-              <Activity className="w-6 h-6 text-purple-600" aria-hidden="true" />
+            <div className="w-12 h-12 bg-yellow-50 rounded-full flex items-center justify-center shrink-0">
+              <Activity className="w-6 h-6 text-yellow-600" aria-hidden="true" />
             </div>
             <div>
-              <p className="text-sm text-gray-500 font-semibold uppercase tracking-wider">Active Agents</p>
-              <p className="text-2xl font-black text-gray-900">{statsAgents}</p>
+              <p className="text-sm text-gray-500 font-semibold uppercase tracking-wider">Ongoing (Drafts)</p>
+              <p className="text-2xl font-black text-gray-900">{statsOngoing}</p>
             </div>
           </div>
         </div>
@@ -271,32 +194,32 @@ const AdminDashboard = () => {
 
               <div className="space-y-4">
                 {/* OPEN */}
-                <div className={`p-4 rounded-lg border transition-all ${settings?.status === 'open' ? 'border-green-500 bg-green-50' : 'border-gray-200 hover:border-green-300'}`}>
+                <div className={`p-4 rounded-lg border transition-all ${settings.status === 'open' ? 'border-green-500 bg-green-50' : 'border-gray-200 hover:border-green-300'}`}>
                   <div className="flex items-center justify-between cursor-pointer" onClick={() => handleStatusChange('open')}>
                     <div className="flex items-center gap-4">
-                      <CheckCircle className={`w-8 h-8 ${settings?.status === 'open' ? 'text-green-600' : 'text-gray-400'}`} aria-hidden="true" />
+                      <CheckCircle className={`w-8 h-8 ${settings.status === 'open' ? 'text-green-600' : 'text-gray-400'}`} aria-hidden="true" />
                       <div>
                         <h3 className="font-bold text-gray-900">Open Admissions</h3>
-                        <p className="text-sm text-gray-500">Portal is active and accepting payments via Monnify.</p>
+                        <p className="text-sm text-gray-500">Portal is active and accepting payments.</p>
                       </div>
                     </div>
                   </div>
-                  {settings?.status === 'open' && (
+                  {settings.status === 'open' && (
                     <div className="mt-4 pt-4 border-t border-green-200">
                       <p className="text-sm font-bold text-green-800 mb-3 flex items-center gap-2">
                         <BookOpen className="w-4 h-4" aria-hidden="true" /> Active Programs:
                       </p>
                       <div className="grid sm:grid-cols-3 gap-3">
-                        <label className="flex items-center gap-2 bg-white p-2 rounded border border-green-200 cursor-pointer hover:bg-green-100">
-                          <input type="checkbox" checked={settings.programs.ug} onChange={() => handleProgramToggle('ug')} className="w-4 h-4 text-green-600" />
+                        <label htmlFor="ug-toggle" className="flex items-center gap-2 bg-white p-2 rounded border border-green-200 cursor-pointer hover:bg-green-100">
+                          <input id="ug-toggle" type="checkbox" checked={settings.programs.ug} onChange={() => handleProgramToggle('ug')} className="w-4 h-4 text-green-600" />
                           <span className="text-sm font-semibold">Undergraduate</span>
                         </label>
-                        <label className="flex items-center gap-2 bg-white p-2 rounded border border-green-200 cursor-pointer hover:bg-green-100">
-                          <input type="checkbox" checked={settings.programs.pg} onChange={() => handleProgramToggle('pg')} className="w-4 h-4 text-green-600" />
+                        <label htmlFor="pg-toggle" className="flex items-center gap-2 bg-white p-2 rounded border border-green-200 cursor-pointer hover:bg-green-100">
+                          <input id="pg-toggle" type="checkbox" checked={settings.programs.pg} onChange={() => handleProgramToggle('pg')} className="w-4 h-4 text-green-600" />
                           <span className="text-sm font-semibold">Postgraduate</span>
                         </label>
-                        <label className="flex items-center gap-2 bg-white p-2 rounded border border-green-200 cursor-pointer hover:bg-green-100">
-                          <input type="checkbox" checked={settings.programs.jupeb} onChange={() => handleProgramToggle('jupeb')} className="w-4 h-4 text-green-600" />
+                        <label htmlFor="jupeb-toggle" className="flex items-center gap-2 bg-white p-2 rounded border border-green-200 cursor-pointer hover:bg-green-100">
+                          <input id="jupeb-toggle" type="checkbox" checked={settings.programs.jupeb} onChange={() => handleProgramToggle('jupeb')} className="w-4 h-4 text-green-600" />
                           <span className="text-sm font-semibold">JUPEB</span>
                         </label>
                       </div>
@@ -305,17 +228,17 @@ const AdminDashboard = () => {
                 </div>
 
                 {/* COMING SOON */}
-                <div className={`p-4 rounded-lg border transition-all ${settings?.status === 'coming_soon' ? 'border-yellow-500 bg-yellow-50' : 'border-gray-200 hover:border-yellow-300'}`}>
+                <div className={`p-4 rounded-lg border transition-all ${settings.status === 'coming_soon' ? 'border-yellow-500 bg-yellow-50' : 'border-gray-200 hover:border-yellow-300'}`}>
                   <div className="flex items-center justify-between cursor-pointer" onClick={() => handleStatusChange('coming_soon')}>
                     <div className="flex items-center gap-4">
-                      <Clock className={`w-8 h-8 ${settings?.status === 'coming_soon' ? 'text-yellow-600' : 'text-gray-400'}`} aria-hidden="true" />
+                      <Clock className={`w-8 h-8 ${settings.status === 'coming_soon' ? 'text-yellow-600' : 'text-gray-400'}`} aria-hidden="true" />
                       <div>
                         <h3 className="font-bold text-gray-900">Coming Soon</h3>
                         <p className="text-sm text-gray-500">Show waiting message.</p>
                       </div>
                     </div>
                   </div>
-                  {settings?.status === 'coming_soon' && (
+                  {settings.status === 'coming_soon' && (
                     <div className="mt-4 pt-4 border-t border-yellow-200">
                       <label htmlFor="openingDate" className="text-sm font-bold text-yellow-800 mb-2 flex items-center gap-2">
                         <Calendar className="w-4 h-4" aria-hidden="true" /> Official Opening Date:
@@ -326,9 +249,9 @@ const AdminDashboard = () => {
                 </div>
 
                 {/* CLOSED */}
-                <div className={`p-4 rounded-lg border flex items-center justify-between cursor-pointer transition-all ${settings?.status === 'closed' ? 'border-red-500 bg-red-50' : 'border-gray-200 hover:border-red-300'}`} onClick={() => handleStatusChange('closed')}>
+                <div className={`p-4 rounded-lg border flex items-center justify-between cursor-pointer transition-all ${settings.status === 'closed' ? 'border-red-500 bg-red-50' : 'border-gray-200 hover:border-red-300'}`} onClick={() => handleStatusChange('closed')}>
                   <div className="flex items-center gap-4">
-                    <XCircle className={`w-8 h-8 ${settings?.status === 'closed' ? 'text-red-600' : 'text-gray-400'}`} aria-hidden="true" />
+                    <XCircle className={`w-8 h-8 ${settings.status === 'closed' ? 'text-red-600' : 'text-gray-400'}`} aria-hidden="true" />
                     <div>
                       <h3 className="font-bold text-gray-900">Close Admissions</h3>
                       <p className="text-sm text-gray-500">Shut down the portal entirely.</p>
@@ -350,9 +273,8 @@ const AdminDashboard = () => {
               <form onSubmit={generateAgentCode} className="space-y-3">
                 <input aria-label="Agent Name" type="text" required placeholder="Agent Name" value={newAgentName} onChange={(e) => setNewAgentName(e.target.value)} className="w-full p-2 text-sm border border-gray-200 rounded outline-none focus:border-blue-500" />
                 <input aria-label="Agent Phone Number" type="tel" required placeholder="Phone Number" value={newAgentPhone} onChange={(e) => setNewAgentPhone(e.target.value)} className="w-full p-2 text-sm border border-gray-200 rounded outline-none focus:border-blue-500" />
-                <button type="submit" disabled={isGenerating} className="w-full bg-blue-600 text-white font-bold py-2.5 rounded hover:bg-blue-700 transition flex items-center justify-center gap-2 text-sm disabled:opacity-50">
-                  {isGenerating ? <Loader2 className="w-4 h-4 animate-spin" aria-hidden="true" /> : <Plus className="w-4 h-4" aria-hidden="true" />} 
-                  {isGenerating ? 'Generating...' : 'Generate Code'}
+                <button type="submit" className="w-full bg-blue-600 text-white font-bold py-2.5 rounded hover:bg-blue-700 transition flex items-center justify-center gap-2 text-sm">
+                  <Plus className="w-4 h-4" aria-hidden="true" /> Generate Code
                 </button>
               </form>
             </div>
@@ -361,11 +283,11 @@ const AdminDashboard = () => {
             <div className="p-4 flex-grow">
               <h3 className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-3">Active Agents</h3>
               {agents.length === 0 ? (
-                <p className="text-xs text-gray-500 italic text-center py-4">No agents created yet.</p>
+                <p className="text-xs text-gray-500 italic text-center py-4">No agents created.</p>
               ) : (
                 <div className="space-y-3 min-h-[180px]">
                   {currentAgents.map((agent, index) => (
-                    <div key={agent.id || index} className="bg-gray-50 p-3 rounded-lg border border-gray-200 text-sm">
+                    <div key={index} className="bg-gray-50 p-3 rounded-lg border border-gray-200 text-sm">
                       <div className="flex justify-between items-start mb-1">
                         <span className="font-bold text-gray-900">{agent.name}</span>
                         <button onClick={() => copyToClipboard(agent.code)} className="text-blue-600 hover:text-blue-800" title="Copy Code" aria-label="Copy Code">
@@ -415,7 +337,7 @@ const AdminDashboard = () => {
               <h2 className="text-lg font-bold text-gray-900 flex items-center gap-2">
                 <FileText className="w-5 h-5 text-blue-600" aria-hidden="true" /> Applicant Tracking
               </h2>
-              <p className="text-xs text-gray-500">Monitor Monnify payments and biodata submissions.</p>
+              <p className="text-xs text-gray-500">Monitor payments and biodata submissions.</p>
             </div>
             
             {/* Functional Search Bar */}
@@ -424,11 +346,11 @@ const AdminDashboard = () => {
               <input 
                 aria-label="Search applicants by PIN, Name, Program, or Agent"
                 type="text" 
-                placeholder="Search CUL PIN, Name, Agent..." 
+                placeholder="Search PIN, Name, Agent..." 
                 value={searchQuery}
                 onChange={(e) => {
                   setSearchQuery(e.target.value);
-                  setCurrentPage(1); // Reset to page 1 when searching
+                  setCurrentPage(1); // Reset to page 1 when searching!
                 }}
                 className="pl-9 pr-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:border-blue-500 w-full md:w-64 bg-gray-50 focus:bg-white transition-colors" 
               />
@@ -444,27 +366,35 @@ const AdminDashboard = () => {
                   <th className="p-4 font-semibold">App PIN</th>
                   <th className="p-4 font-semibold">Agent Ref</th>
                   <th className="p-4 font-semibold">Status</th>
+                  <th className="p-4 font-semibold text-right">Date</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
                 {currentApplicants.length === 0 ? (
                   <tr>
-                    <td colSpan={5} className="p-8 text-center text-sm text-gray-500 italic">
-                      No applicants found in the database.
+                    <td colSpan={6} className="p-8 text-center text-sm text-gray-500 italic">
+                      No applicants match your search.
                     </td>
                   </tr>
                 ) : (
                   currentApplicants.map((applicant) => (
-                    <tr key={applicant.id || applicant.pin} className="hover:bg-blue-50/50 transition-colors">
+                    <tr key={applicant.id} className="hover:bg-blue-50/50 transition-colors">
                       <td className="p-4 font-bold text-gray-900 text-sm">{applicant.name}</td>
                       <td className="p-4 text-sm text-gray-600">{applicant.program}</td>
                       <td className="p-4"><span className="font-mono text-xs font-bold text-slate-600 bg-slate-100 px-2 py-1 rounded border border-gray-200">{applicant.pin}</span></td>
                       <td className="p-4 text-sm text-gray-500">{applicant.refCode}</td>
                       <td className="p-4">
-                        <span className="inline-flex items-center gap-1 bg-green-100 text-green-700 text-[10px] font-bold px-2.5 py-1 rounded-full uppercase">
-                           <CheckCircle className="w-3 h-3" aria-hidden="true" /> Paid
-                        </span>
+                        {applicant.status === 'completed' ? (
+                          <span className="inline-flex items-center gap-1 bg-green-100 text-green-700 text-[10px] font-bold px-2.5 py-1 rounded-full uppercase">
+                            <CheckCircle className="w-3 h-3" aria-hidden="true" /> Completed
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center gap-1 bg-yellow-100 text-yellow-700 text-[10px] font-bold px-2.5 py-1 rounded-full uppercase">
+                            <Clock className="w-3 h-3" aria-hidden="true" /> Ongoing
+                          </span>
+                        )}
                       </td>
+                      <td className="p-4 text-right text-xs text-gray-500 whitespace-nowrap">{applicant.date}</td>
                     </tr>
                   ))
                 )}

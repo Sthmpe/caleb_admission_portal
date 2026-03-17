@@ -78,7 +78,7 @@ const AdminDashboard = () => {
         
       } catch (error) {
         // Catch the specific AbortError from our timeout
-        if (error instanceof Error && error.name === 'AbortError') {
+        if (error instanceof Error && error.name  === 'AbortError') {
           console.error("Dashboard fetch timed out!");
           setErrorMessage("Connection timed out. The database took longer than 15 seconds to respond.");
         } else {

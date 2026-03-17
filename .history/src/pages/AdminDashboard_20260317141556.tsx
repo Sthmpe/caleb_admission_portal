@@ -76,9 +76,9 @@ const AdminDashboard = () => {
         if (agentsRes.ok) setAgents(await agentsRes.json());
         if (applicantsRes.ok) setApplicants(await applicantsRes.json());
         
-      } catch (error) {
+      } catch (error: any) {
         // Catch the specific AbortError from our timeout
-        if (error instanceof Error && error.name === 'AbortError') {
+        if (error.name === 'AbortError') {
           console.error("Dashboard fetch timed out!");
           setErrorMessage("Connection timed out. The database took longer than 15 seconds to respond.");
         } else {

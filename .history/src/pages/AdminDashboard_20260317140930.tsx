@@ -40,7 +40,6 @@ const AdminDashboard = () => {
   const [agents, setAgents] = useState<Agent[]>([]);
   const [applicants, setApplicants] = useState<Applicant[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [errorMessage, setErrorMessage] = useState(''); // NEW: Error state for timeout
 
   // UI State
   const [newAgentName, setNewAgentName] = useState('');
@@ -54,46 +53,28 @@ const AdminDashboard = () => {
   const itemsPerPage = 5;
   const agentsPerPage = 3;
 
-  // --- FETCH INITIAL DATA WITH TIMEOUT ---
+  // --- FETCH INITIAL DATA ---
   useEffect(() => {
-    // Set up the AbortController for the 15-second timeout
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 60000); 
-
     const fetchDashboardData = async () => {
       try {
-        // Pass the controller's signal to abort the fetch if it takes too long
         const [settingsRes, agentsRes, applicantsRes] = await Promise.all([
-          fetch(`${API_BASE}/api/settings`, { signal: controller.signal }),
-          fetch(`${API_BASE}/api/agents`, { signal: controller.signal }),
-          fetch(`${API_BASE}/api/applicants`, { signal: controller.signal })
+          fetch(`${API_BASE}/api/settings`),
+          fetch(`${API_BASE}/api/agents`),
+          fetch(`${API_BASE}/api/applicants`)
         ]);
-
-        // If it succeeds before 15 seconds, clear the timeout!
-        clearTimeout(timeoutId);
 
         if (settingsRes.ok) setSettings(await settingsRes.json());
         if (agentsRes.ok) setAgents(await agentsRes.json());
         if (applicantsRes.ok) setApplicants(await applicantsRes.json());
         
       } catch (error) {
-        // Catch the specific AbortError from our timeout
-        if (error instanceof Error && error.name === 'AbortError') {
-          console.error("Dashboard fetch timed out!");
-          setErrorMessage("Connection timed out. The database took longer than 15 seconds to respond.");
-        } else {
-          console.error("Error fetching data:", error);
-          setErrorMessage("Failed to load dashboard data. Please check your connection.");
-        }
+        console.error("Error fetching data:", error);
       } finally {
         setIsLoading(false);
       }
     };
 
     fetchDashboardData();
-
-    // Cleanup function in case the component unmounts early
-    return () => clearTimeout(timeoutId);
   }, []);
 
   // --- HANDLERS ---
@@ -106,8 +87,8 @@ const AdminDashboard = () => {
         body: JSON.stringify(newSettings)
       });
     } catch (error) {
-        console.error("Settings save error:", error);
-        alert("Failed to save settings to the database.");
+		console.error("Settings save error:", error);
+    	alert("Failed to save settings to the database.");
     }
   };
 
@@ -144,7 +125,7 @@ const AdminDashboard = () => {
         setAgentPage(1);
       }
     } catch (error) {
-        console.error("Agent creation error:", error);
+		
       alert("Failed to generate agent code.");
     } finally {
       setIsGenerating(false);
@@ -183,8 +164,7 @@ const AdminDashboard = () => {
   const statsRevenue = applicants.length * 10000; // Estimated based on Monnify payments
   const statsAgents = agents.length;
 
-  // --- RENDER LOADING STATE ---
-  if (isLoading) {
+  if (isLoading || !settings) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50">
         <Loader2 className="w-10 h-10 text-blue-600 animate-spin mb-4" />
@@ -193,26 +173,6 @@ const AdminDashboard = () => {
     );
   }
 
-  // --- RENDER ERROR STATE (TIMEOUT OR FETCH FAIL) ---
-  if (errorMessage) {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 p-4">
-        <div className="bg-red-50 text-red-700 p-6 rounded-xl border border-red-200 text-center max-w-md w-full shadow-sm">
-          <XCircle className="w-12 h-12 mx-auto mb-4 text-red-500" />
-          <h2 className="text-xl font-bold mb-2">Network Error</h2>
-          <p className="text-sm font-medium">{errorMessage}</p>
-          <button 
-            onClick={() => window.location.reload()} 
-            className="mt-6 w-full bg-red-600 text-white px-6 py-2.5 rounded-lg font-bold hover:bg-red-700 transition"
-          >
-            Try Again
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  // --- RENDER MAIN DASHBOARD ---
   return (
     <div className="min-h-screen bg-gray-50 p-4 md:p-8 font-sans pb-12">
       <div className="max-w-6xl mx-auto space-y-6">
@@ -271,17 +231,17 @@ const AdminDashboard = () => {
 
               <div className="space-y-4">
                 {/* OPEN */}
-                <div className={`p-4 rounded-lg border transition-all ${settings?.status === 'open' ? 'border-green-500 bg-green-50' : 'border-gray-200 hover:border-green-300'}`}>
+                <div className={`p-4 rounded-lg border transition-all ${settings.status === 'open' ? 'border-green-500 bg-green-50' : 'border-gray-200 hover:border-green-300'}`}>
                   <div className="flex items-center justify-between cursor-pointer" onClick={() => handleStatusChange('open')}>
                     <div className="flex items-center gap-4">
-                      <CheckCircle className={`w-8 h-8 ${settings?.status === 'open' ? 'text-green-600' : 'text-gray-400'}`} aria-hidden="true" />
+                      <CheckCircle className={`w-8 h-8 ${settings.status === 'open' ? 'text-green-600' : 'text-gray-400'}`} aria-hidden="true" />
                       <div>
                         <h3 className="font-bold text-gray-900">Open Admissions</h3>
                         <p className="text-sm text-gray-500">Portal is active and accepting payments via Monnify.</p>
                       </div>
                     </div>
                   </div>
-                  {settings?.status === 'open' && (
+                  {settings.status === 'open' && (
                     <div className="mt-4 pt-4 border-t border-green-200">
                       <p className="text-sm font-bold text-green-800 mb-3 flex items-center gap-2">
                         <BookOpen className="w-4 h-4" aria-hidden="true" /> Active Programs:
@@ -305,17 +265,17 @@ const AdminDashboard = () => {
                 </div>
 
                 {/* COMING SOON */}
-                <div className={`p-4 rounded-lg border transition-all ${settings?.status === 'coming_soon' ? 'border-yellow-500 bg-yellow-50' : 'border-gray-200 hover:border-yellow-300'}`}>
+                <div className={`p-4 rounded-lg border transition-all ${settings.status === 'coming_soon' ? 'border-yellow-500 bg-yellow-50' : 'border-gray-200 hover:border-yellow-300'}`}>
                   <div className="flex items-center justify-between cursor-pointer" onClick={() => handleStatusChange('coming_soon')}>
                     <div className="flex items-center gap-4">
-                      <Clock className={`w-8 h-8 ${settings?.status === 'coming_soon' ? 'text-yellow-600' : 'text-gray-400'}`} aria-hidden="true" />
+                      <Clock className={`w-8 h-8 ${settings.status === 'coming_soon' ? 'text-yellow-600' : 'text-gray-400'}`} aria-hidden="true" />
                       <div>
                         <h3 className="font-bold text-gray-900">Coming Soon</h3>
                         <p className="text-sm text-gray-500">Show waiting message.</p>
                       </div>
                     </div>
                   </div>
-                  {settings?.status === 'coming_soon' && (
+                  {settings.status === 'coming_soon' && (
                     <div className="mt-4 pt-4 border-t border-yellow-200">
                       <label htmlFor="openingDate" className="text-sm font-bold text-yellow-800 mb-2 flex items-center gap-2">
                         <Calendar className="w-4 h-4" aria-hidden="true" /> Official Opening Date:
@@ -326,9 +286,9 @@ const AdminDashboard = () => {
                 </div>
 
                 {/* CLOSED */}
-                <div className={`p-4 rounded-lg border flex items-center justify-between cursor-pointer transition-all ${settings?.status === 'closed' ? 'border-red-500 bg-red-50' : 'border-gray-200 hover:border-red-300'}`} onClick={() => handleStatusChange('closed')}>
+                <div className={`p-4 rounded-lg border flex items-center justify-between cursor-pointer transition-all ${settings.status === 'closed' ? 'border-red-500 bg-red-50' : 'border-gray-200 hover:border-red-300'}`} onClick={() => handleStatusChange('closed')}>
                   <div className="flex items-center gap-4">
-                    <XCircle className={`w-8 h-8 ${settings?.status === 'closed' ? 'text-red-600' : 'text-gray-400'}`} aria-hidden="true" />
+                    <XCircle className={`w-8 h-8 ${settings.status === 'closed' ? 'text-red-600' : 'text-gray-400'}`} aria-hidden="true" />
                     <div>
                       <h3 className="font-bold text-gray-900">Close Admissions</h3>
                       <p className="text-sm text-gray-500">Shut down the portal entirely.</p>

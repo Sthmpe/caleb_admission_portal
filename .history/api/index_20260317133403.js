@@ -35,7 +35,7 @@ try {
 const db = admin.firestore();
 
 // --- MONNIFY HELPERS ---
-const MONNIFY_BASE_URL = process.env.MONNIFY_BASE_URL || 'https://sandbox.monnify.com/api/v1';
+const MONNIFY_BASE_URL = 'https://sandbox.monnify.com/api/v1';
 
 async function getMonnifyToken() {
   const auth = Buffer.from(`${process.env.MONNIFY_API_KEY}:${process.env.MONNIFY_SECRET_KEY}`).toString('base64');

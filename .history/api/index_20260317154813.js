@@ -105,7 +105,7 @@ app.post(['/api/agents', '/agents'], async (req, res) => {
     await db.collection('agents').doc(newCode).set(newAgent);
     res.status(201).json({ message: 'Agent created', agent: newAgent });
   } catch (error) {
-    res.status(500).json({ error: 'Failed to create agent'});
+    res.status(500).json({ error: 'Failed to create agent' });
   }
 });
 

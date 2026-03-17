@@ -122,9 +122,6 @@ const BiodataForm = () => {
       window.scrollTo(0, 0);
     } catch (error) {
       console.error(error);
-      if (error instanceof Error) {
-        alert(error.message);
-      }
       alert("Submission failed. Please try again.");
     } finally {
       setIsLoading(false);

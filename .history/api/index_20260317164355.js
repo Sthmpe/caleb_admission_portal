@@ -307,7 +307,7 @@ app.post(['/api/biodata/generate-pdf', '/biodata/generate-pdf'], async (req, res
     const data = doc.data();
     const bio = data.biodata || {};
 
-    const templatePath = path.join(process.cwd(), 'assets', 'Admissionform1stMay2020.pdf');
+    const templatePath = path.join(process.cwd(), 'assets', 'Admissionform1stMay 2020.pdf');
     
     if (!fs.existsSync(templatePath)) {
       return res.status(500).json({ error: 'PDF template missing from server assets' });

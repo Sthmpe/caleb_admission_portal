@@ -3,9 +3,6 @@ import cors from 'cors';
 import admin from 'firebase-admin';
 import dotenv from 'dotenv';
 import axios from 'axios';
-import { PDFDocument, rgb, StandardFonts } from 'pdf-lib'
-import fs from 'fs';
-import path from 'path';
 
 if (!process.env.VERCEL) {
   dotenv.config();
@@ -296,50 +293,5 @@ app.post(['/api/biodata/submit', '/biodata/submit'], async (req, res) => {
   }
 });
 
-// POST: Generate Final Application PDF
-app.post(['/api/biodata/generate-pdf', '/biodata/generate-pdf'], async (req, res) => {
-  const { pin } = req.body;
-
-  try {
-    const doc = await db.collection('applicants').doc(pin).get();
-    if (!doc.exists) return res.status(404).json({ error: 'Applicant not found' });
-    
-    const data = doc.data();
-    const bio = data.biodata || {};
-
-    const templatePath = path.join(process.cwd(), 'assets', 'Admissionform1stMay2020.pdf');
-    
-    if (!fs.existsSync(templatePath)) {
-      return res.status(500).json({ error: 'PDF template missing from server assets' });
-    }
-
-    const existingPdfBytes = fs.readFileSync(templatePath);
-    const pdfDoc = await PDFDocument.load(existingPdfBytes);
-    const font = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
-    const pages = pdfDoc.getPages();
-    const firstPage = pages[0];
-
-    // --- DRAWING SECTION ---
-    // Session (Top Right)
-    firstPage.drawText("2026/2027", { x: 440, y: 700, size: 11, font });
-
-    // JAMB Details
-    firstPage.drawText(bio.jambRegNo || 'N/A', { x: 120, y: 550, size: 11, font });
-    firstPage.drawText(String(bio.academicScore || 'N/A'), { x: 120, y: 535, size: 11, font });
-
-    // Full Name
-    const fullName = `${(bio.lastName || '').toUpperCase()}, ${bio.firstName || ''} ${bio.middleName || ''}`;
-    firstPage.drawText(fullName, { x: 120, y: 505, size: 11, font });
-
-    const pdfBytes = await pdfDoc.save();
-    const base64Pdf = Buffer.from(pdfBytes).toString('base64');
-    
-    res.status(200).json({ pdf: base64Pdf });
-
-  } catch (error) {
-    console.error("PDF Error:", error);
-    res.status(500).json({ error: 'Failed to generate PDF' });
-  }
-});
 
 export default app;

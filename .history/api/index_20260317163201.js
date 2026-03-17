@@ -3,7 +3,7 @@ import cors from 'cors';
 import admin from 'firebase-admin';
 import dotenv from 'dotenv';
 import axios from 'axios';
-import { PDFDocument, rgb, StandardFonts } from 'pdf-lib'
+import { PDFDocument, rgb } from 'pdf-lib';
 import fs from 'fs';
 import path from 'path';
 
@@ -301,45 +301,53 @@ app.post(['/api/biodata/generate-pdf', '/biodata/generate-pdf'], async (req, res
   const { pin } = req.body;
 
   try {
+    // 1. Fetch the applicant data from Firestore
     const doc = await db.collection('applicants').doc(pin).get();
     if (!doc.exists) return res.status(404).json({ error: 'Applicant not found' });
     
     const data = doc.data();
-    const bio = data.biodata || {};
+    const bio = data.biodata;
 
-    const templatePath = path.join(process.cwd(), 'assets', 'Admissionform1stMay2020.pdf');
-    
-    if (!fs.existsSync(templatePath)) {
-      return res.status(500).json({ error: 'PDF template missing from server assets' });
-    }
-
+    // 2. Load the physical PDF template from your source code
+    const templatePath = path.join(process.cwd(), 'assets', 'template.pdf');
     const existingPdfBytes = fs.readFileSync(templatePath);
     const pdfDoc = await PDFDocument.load(existingPdfBytes);
-    const font = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+    
+    // Get the first page
     const pages = pdfDoc.getPages();
     const firstPage = pages[0];
 
-    // --- DRAWING SECTION ---
-    // Session (Top Right)
-    firstPage.drawText("2026/2027", { x: 440, y: 700, size: 11, font });
-
-    // JAMB Details
-    firstPage.drawText(bio.jambRegNo || 'N/A', { x: 120, y: 550, size: 11, font });
-    firstPage.drawText(String(bio.academicScore || 'N/A'), { x: 120, y: 535, size: 11, font });
-
-    // Full Name
-    const fullName = `${(bio.lastName || '').toUpperCase()}, ${bio.firstName || ''} ${bio.middleName || ''}`;
-    firstPage.drawText(fullName, { x: 120, y: 505, size: 11, font });
-
-    const pdfBytes = await pdfDoc.save();
-    const base64Pdf = Buffer.from(pdfBytes).toString('base64');
+    // 3. Draw the data onto the PDF (Example coordinates - you will need to adjust these)
+    // firstPage.drawText(text, { x, y, size, color })
     
+    // Application Number & Session
+    firstPage.drawText(pin, { x: 450, y: 750, size: 12, color: rgb(0, 0, 0) });
+    firstPage.drawText("2026/2027", { x: 450, y: 680, size: 12 });
+
+    // Name Section
+    firstPage.drawText(bio.lastName || '', { x: 150, y: 550, size: 11 });
+    firstPage.drawText(bio.firstName || '', { x: 150, y: 530, size: 11 });
+
+    // Contact Section
+    firstPage.drawText(bio.address || '', { x: 150, y: 480, size: 10 });
+    firstPage.drawText(data.email || '', { x: 150, y: 450, size: 10 });
+
+    // 4. Serialize the PDF to bytes
+    const pdfBytes = await pdfDoc.save();
+
+    // 5. Send the file back to the browser
+    res.setHeader('Content-Type', 'application/json');
+    res.setHeader('Content-Disposition', `attachment; filename=Caleb_Admission_${pin}.pdf`);
+    
+    // We send it as a Base64 string so the frontend can easily trigger a download
+    const base64Pdf = Buffer.from(pdfBytes).toString('base64');
     res.status(200).json({ pdf: base64Pdf });
 
   } catch (error) {
-    console.error("PDF Error:", error);
+    console.error("PDF Generation Error:", error);
     res.status(500).json({ error: 'Failed to generate PDF' });
   }
 });
+
 
 export default app;

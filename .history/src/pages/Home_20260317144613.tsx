@@ -5,9 +5,6 @@ import {
   Phone, Mail, MapPin, Facebook, Youtube, Lock
 } from 'lucide-react';
 
-// --- CONFIG ---
-const API_BASE = import.meta.env.DEV ? 'http://localhost:3001' : '';
-
 const WhatsAppIcon = ({ className }: { className?: string }) => (
   <svg 
     viewBox="0 0 24 24" 
@@ -45,25 +42,12 @@ const AnimatedCounter = ({ target, suffix = "" }: { target: number, suffix?: str
 };
 
 const Home = () => {
-  // Fetch real settings from the database
-  const [settings, setSettings] = useState({ 
-    status: 'coming_soon', 
-    comingSoonDate: '',
-    programs: { ug: true, pg: true, jupeb: true } 
+  const [settings] = useState(() => {
+    const saved = localStorage.getItem('portal_settings');
+    return saved ? JSON.parse(saved) : { status: 'coming_soon', comingSoonDate: '' };
   });
+
   const [isSupportOpen, setIsSupportOpen] = useState(false);
-
-  // Dynamic Academic Year Calculation
-  const currentYear = new Date().getFullYear();
-  const academicSession = `${currentYear}/${currentYear + 1}`;
-
-  useEffect(() => {
-    // Pull the live status from the backend
-    fetch(`${API_BASE}/api/settings`)
-      .then(res => res.json())
-      .then(data => setSettings(data))
-      .catch(err => console.error("Failed to load settings:", err));
-  }, []);
 
   return (
     <div className="flex flex-col min-h-screen font-sans bg-gray-50 overflow-x-hidden">
@@ -85,7 +69,7 @@ const Home = () => {
             <HelpCircle className="w-4 h-4" /> Support
           </button>
           
-          {/* Dropdown Card */}
+          {/* Dropdown Card (Now controlled by React state instead of hover) */}
           {isSupportOpen && (
             <div className="absolute right-0 top-full mt-1 w-56 md:w-64 bg-white border border-gray-100 shadow-xl rounded-lg p-4 md:p-5 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
               <p className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Contact Support</p>
@@ -116,12 +100,9 @@ const Home = () => {
                 Application Portal
               </span>
             </div>
-            
-            {/* Dynamic Academic Session */}
             <h1 className="text-2xl sm:text-3xl md:text-5xl font-extrabold mb-3 md:mb-4 leading-tight tracking-tight">
-              {academicSession} Admissions
+              2026/2027 Admissions
             </h1>
-            
             <p className="text-sm md:text-base mb-6 md:mb-8 text-slate-300 max-w-xl mx-auto lg:mx-0 leading-relaxed px-2 md:px-0">
               Welcome to the Caleb University admission portal. Ensure you have your credentials ready before purchasing the application form.
             </p>
@@ -169,10 +150,8 @@ const Home = () => {
                     <FileText className="w-4 h-4 md:w-5 md:h-5" />
                     Purchase Form (₦10,000)
                   </Link>
-                  
-                  {/* Updated Monnify Text */}
                   <p className="text-[10px] md:text-xs text-gray-400 mb-5 md:mb-6 flex items-center justify-center gap-1">
-                    <ShieldCheck className="w-3 h-3" /> Secured by Monnify
+                    <ShieldCheck className="w-3 h-3" /> Secure Payment Gateway
                   </p>
 
                   {/* Continue Biodata Section */}
@@ -335,7 +314,7 @@ const Home = () => {
         
         {/* Copyright Bar */}
         <div className="max-w-6xl mx-auto px-6 mt-10 md:mt-12 pt-6 border-t border-slate-800 text-center text-xs text-slate-500">
-          © {currentYear} Caleb University Admissions. All rights reserved.
+          © {new Date().getFullYear()} Caleb University Admissions. All rights reserved.
         </div>
       </footer>
 

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { 
   Lock, Key, Save, Send, User, BookOpen, 
-  Phone, MapPin, CheckCircle, ArrowLeft, AlertCircle, Loader2 , Printer,
+  Phone, MapPin, CheckCircle, ArrowLeft, AlertCircle, Loader2 
 } from 'lucide-react';
 
 const API_BASE = import.meta.env.DEV ? 'http://localhost:3001' : '';

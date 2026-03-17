@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { 
   Lock, Key, Save, Send, User, BookOpen, 
-  Phone, MapPin, CheckCircle, ArrowLeft, AlertCircle, Loader2 , Printer,
+  Phone, MapPin, CheckCircle, ArrowLeft, AlertCircle, Loader2 
 } from 'lucide-react';
 
 const API_BASE = import.meta.env.DEV ? 'http://localhost:3001' : '';
@@ -17,6 +17,7 @@ const BiodataForm = () => {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [loginError, setLoginError] = useState('');
+
   const [isDownloading, setIsDownloading] = useState(false);
   
   // Applicant Data from Database
@@ -43,31 +44,7 @@ const BiodataForm = () => {
       .catch(() => setIsPortalOpen(true)); // Default open if error
   }, []);
 
-  const downloadPDF = async () => {
-    setIsDownloading(true);
-    try {
-      const response = await fetch(`${API_BASE}/api/biodata/generate-pdf`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ pin: pin.toUpperCase() })
-      });
-
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error || "Failed to generate PDF");
-
-      // Trigger actual file download
-      const link = document.createElement('a');
-      link.href = `data:application/pdf;base64,${data.pdf}`;
-      link.download = `Caleb_Admission_Form_${pin}.pdf`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    } catch (error) {
-      alert("Error: " + (error instanceof Error ? error.message : "Could not download PDF"));
-    } finally {
-      setIsDownloading(false);
-    }
-  };
+  
 
   // --- HANDLE PIN LOGIN ---
   const handleLogin = async (e: React.FormEvent) => {
@@ -232,19 +209,14 @@ const BiodataForm = () => {
           <CheckCircle className="w-12 h-12 md:w-16 md:h-16 text-green-500 mx-auto mb-3 md:mb-4" />
           <h1 className="text-xl md:text-2xl font-bold text-gray-900 mb-2">Application Locked</h1>
           <p className="text-sm md:text-base text-gray-600 mb-5 md:mb-6 border-b pb-5 md:pb-6">
-            Your biodata for PIN <strong className="font-mono text-blue-600">{pin}</strong> has been submitted.
+            Your biodata for PIN <strong className="font-mono text-blue-600">{pin}</strong> has already been submitted successfully. 
+            You can no longer edit this information.
           </p>
-          
-          <button 
-            onClick={downloadPDF} 
-            disabled={isDownloading}
-            className="w-full bg-slate-900 text-white font-bold py-3 rounded-lg hover:bg-black transition flex items-center justify-center gap-2 mb-3 shadow-md"
-          >
-            {isDownloading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Printer className="w-4 h-4" />}
-            {isDownloading ? 'Generating PDF...' : 'Print Admission Form'}
+          {/* We will hook up the PDF generation to this button later! */}
+          <button onClick={() => window.print()} className="w-full bg-slate-900 text-white font-bold py-2.5 md:py-3 rounded-lg hover:bg-black transition mb-3 shadow-md text-sm md:text-base">
+            Print Acknowledgment Slip
           </button>
-
-          <Link to="/" className="text-blue-600 font-bold hover:underline block text-sm">
+          <Link to="/" className="text-blue-600 font-bold hover:underline block text-sm md:text-base">
             Return to Homepage
           </Link>
         </div>

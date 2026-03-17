@@ -308,7 +308,7 @@ app.post(['/api/biodata/generate-pdf', '/biodata/generate-pdf'], async (req, res
     const bio = data.biodata || {};
 
     // Robust path detection
-    const templatePath = path.join(process.cwd(), 'assets', 'Admissionform1stMay2020.pdf');
+    const templatePath = path.join(process.cwd(), 'assets', 'Admission form 1st May 2020.pdf');
     
     console.log("Attempting to load PDF from:", templatePath);
 

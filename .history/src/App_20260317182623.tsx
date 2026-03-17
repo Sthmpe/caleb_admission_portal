@@ -5,7 +5,7 @@ import BiodataForm from './pages/BiodataForm';
 import Apply from './pages/Apply';
 import AdminDashboard from './pages/AdminDashboard';
 import Success from './pages/Success';
-import DownloadForm from './pages/DownloadForm'; // 1. Import the new editor
+import AdmissionEditor from './pages/DownloadForm'; // 1. Import the new editor
 
 function App() {
   return (
@@ -20,7 +20,7 @@ function App() {
           <Route path="/success" element={<Success />} />
 
           {/* Secure Editor Route */}
-          <Route path="/editor" element={<DownloadForm />} /> {/* 2. Add the route */}
+          <Route path="/editor" element={<AdmissionEditor />} /> {/* 2. Add the route */}
 
           {/* Secret Admin Route */}
           <Route path="/admin-portal-xyz" element={<AdminDashboard />} />

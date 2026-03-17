@@ -5,7 +5,7 @@ import BiodataForm from './pages/BiodataForm';
 import Apply from './pages/Apply';
 import AdminDashboard from './pages/AdminDashboard';
 import Success from './pages/Success';
-import DownloadForm from './pages/DownloadForm'; // 1. Import the new editor
+import AdmissionEditor from './pages/DownloadForm'; // 1. Import the new editor
 
 function App() {
   return (

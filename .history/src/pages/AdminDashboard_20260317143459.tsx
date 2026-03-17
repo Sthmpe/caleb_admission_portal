@@ -237,7 +237,7 @@ const AdminDashboard = () => {
               <FileText className="w-4 h-4 md:w-6 md:h-6 text-green-600" aria-hidden="true" />
             </div>
             <div className="min-w-0">
-              <p className="text-[9px] md:text-xs text-gray-500 font-semibold uppercase tracking-wider truncate">Estimated Revenue</p>
+              <p className="text-[9px] md:text-xs text-gray-500 font-semibold uppercase tracking-wider truncate">Estimated. Reve</p>
               <p className="text-lg md:text-2xl font-black text-gray-900 truncate">₦{(statsRevenue / 1000).toFixed(0)}k</p>
             </div>
           </div>

@@ -4,7 +4,6 @@ import Home from './pages/Home';
 import BiodataForm from './pages/BiodataForm';
 import Apply from './pages/Apply';
 import AdminDashboard from './pages/AdminDashboard';
-import Success from './pages/Success';
 
 
 function App() {

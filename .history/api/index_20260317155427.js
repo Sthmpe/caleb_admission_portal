@@ -126,7 +126,7 @@ app.get(['/api/applicants', '/applicants'], async (req, res) => {
 
 // POST: Init Monnify Payment
 app.post(['/api/pay/init', '/pay/init'], async (req, res) => {
-  const { amount, customerName, customerEmail, program, refCode, redirectUrl } = req.body;
+  const { amount, customerName, customerEmail, program, refCode } = req.body;
   
   try {
     const token = await getMonnifyToken();
@@ -147,7 +147,7 @@ app.post(['/api/pay/init', '/pay/init'], async (req, res) => {
       paymentDescription: `${program} Admission Form`,
       currencyCode: 'NGN',
       contractCode: process.env.MONNIFY_CONTRACT_CODE,
-      redirectUrl: redirectUrl,
+      redirectUrl: redirectUrl,,
       paymentMethods: ["ACCOUNT_TRANSFER"] // Only allow Bank Transfers
     }, {
       headers: { Authorization: `Bearer ${token}` }

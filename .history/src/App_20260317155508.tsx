@@ -4,7 +4,6 @@ import Home from './pages/Home';
 import BiodataForm from './pages/BiodataForm';
 import Apply from './pages/Apply';
 import AdminDashboard from './pages/AdminDashboard';
-import Success from './pages/Success';
 
 
 function App() {
@@ -22,7 +21,7 @@ function App() {
           <Route path="/biodata" element={<BiodataForm />} />
           {/* Secret Admin Route - We will add password protection later */}
           <Route path="/admin-portal-xyz" element={<AdminDashboard />} />
-          <Route path="/success" element={<Success />} />
+          
         </Routes>
       </div>
     </Router>
